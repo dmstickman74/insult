@@ -90,18 +90,6 @@
     width: 100%;
     max-width: 520px;
   }
-  .header-badge {
-    display: inline-block;
-    background: var(--ink);
-    color: var(--bg);
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    padding: 4px 14px 3px;
-    border-radius: 2px;
-    margin-bottom: 10px;
-  }
   h1 {
     font-size: clamp(26px, 7vw, 44px);
     font-weight: 900;
@@ -114,12 +102,12 @@
   }
   h1 span {
     display: block;
-    font-size: 0.45em;
-    letter-spacing: 0.2em;
-    font-weight: 400;
-    color: var(--muted);
-    margin-bottom: 4px;
-    font-style: italic;
+    font-size: 1.3em;
+    letter-spacing: 0.06em;
+    font-weight: 900;
+    color: var(--ink);
+    margin-bottom: 2px;
+    font-style: normal;
   }
   .tagline {
     font-size: clamp(11px, 2.5vw, 13px);
@@ -398,8 +386,7 @@
   @media (max-height: 580px) {
     .header { padding: 8px 0 6px; }
     h1 { font-size: clamp(20px, 6vw, 32px); }
-    .header-badge { display: none; }
-    .strip-card { min-height: 52px; padding: 8px 14px 8px 8px; }
+.strip-card { min-height: 52px; padding: 8px 14px 8px 8px; }
     .book { gap: 3px; }
   }
 
@@ -434,8 +421,7 @@
 </style>
 
 <div class="header">
-  <div class="header-badge">Poppy's</div>
-  <h1><span>The Ultimate</span>Insult Generator</h1>
+  <h1><span>Poppy's</span>Ultimate<br>Insult Generator</h1>
   <div class="tagline">Over 60 million hilarious zingers & stingers</div>
 </div>
 
