@@ -1,0 +1,732 @@
+<title>Poppy's Ultimate Insult Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1c1108">
+<style>
+  :root {
+    --bg: #f7f2e8;
+    --bg-deep: #ede6d6;
+    --ink: #1c1108;
+    --ink-soft: #3d2e1a;
+    --muted: #9a8b76;
+    --gutter: #bfb49e;
+    --glow: rgba(255,200,60,0.12);
+    --card-shadow: 0 2px 6px rgba(28,17,8,0.18), 0 0 0 1px rgba(28,17,8,0.06);
+    --card-shadow-hover: 0 4px 16px rgba(28,17,8,0.22), 0 0 0 1px rgba(28,17,8,0.1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1108;
+      --bg-deep: #140c04;
+      --ink: #f0e8d8;
+      --ink-soft: #c8b89a;
+      --muted: #7a6b56;
+      --gutter: #3a2e20;
+      --glow: rgba(255,200,60,0.06);
+      --card-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+      --card-shadow-hover: 0 6px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1108;
+    --bg-deep: #140c04;
+    --ink: #f0e8d8;
+    --ink-soft: #c8b89a;
+    --muted: #7a6b56;
+    --gutter: #3a2e20;
+    --glow: rgba(255,200,60,0.06);
+    --card-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    --card-shadow-hover: 0 6px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f2e8;
+    --bg-deep: #ede6d6;
+    --ink: #1c1108;
+    --ink-soft: #3d2e1a;
+    --muted: #9a8b76;
+    --gutter: #bfb49e;
+    --glow: rgba(255,200,60,0.12);
+    --card-shadow: 0 2px 6px rgba(28,17,8,0.18), 0 0 0 1px rgba(28,17,8,0.06);
+    --card-shadow-hover: 0 4px 16px rgba(28,17,8,0.22), 0 0 0 1px rgba(28,17,8,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 24px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));
+    font-family: Georgia, 'Times New Roman', serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── Background texture ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(128,100,60,0.02) 3px, rgba(128,100,60,0.02) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(128,100,60,0.015) 5px, rgba(128,100,60,0.015) 6px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  .header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 28px 0 20px;
+    width: 100%;
+    max-width: 520px;
+  }
+  .header-badge {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 4px 14px 3px;
+    border-radius: 2px;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-size: clamp(26px, 7vw, 44px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    line-height: 1;
+    text-wrap: balance;
+    margin-bottom: 6px;
+  }
+  h1 span {
+    display: block;
+    font-size: 0.45em;
+    letter-spacing: 0.2em;
+    font-weight: 400;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+  .tagline {
+    font-size: clamp(11px, 2.5vw, 13px);
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── Book container ── */
+  .book-wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+  }
+  .book {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* ── Strip cards ── */
+  .strip {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    z-index: 1;
+    perspective: 800px;
+  }
+
+  .strip-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 76px;
+    padding: 16px 20px 16px 14px;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.18s, transform 0.18s;
+    transform-style: preserve-3d;
+    overflow: hidden;
+  }
+
+  /* Paper grain on each card */
+  .strip-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(165deg, rgba(255,255,255,0.18) 0%, transparent 40%, rgba(0,0,0,0.04) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+
+  @media (hover: hover) {
+    .strip:hover .strip-card {
+      box-shadow: var(--card-shadow-hover);
+      transform: translateX(4px) scale(1.008);
+    }
+  }
+  .strip:active .strip-card {
+    transform: translateX(6px) scale(0.995);
+    box-shadow: var(--card-shadow);
+  }
+
+  /* ── Text ── */
+  .strip-text {
+    position: relative;
+    z-index: 2;
+    color: var(--ink);
+    line-height: 1.15;
+    transition: opacity 0.12s;
+  }
+
+  .strip.display-type .strip-text {
+    font-weight: 900;
+    font-size: clamp(17px, 5vw, 30px);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .strip.action-type .strip-text {
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(14px, 3.8vw, 22px);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Unflipped placeholder ── */
+  .strip.unflipped .strip-text {
+    opacity: 0;
+  }
+  .strip.unflipped .strip-card {
+    position: relative;
+  }
+  .strip-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.15s;
+  }
+  .strip:not(.unflipped) .strip-placeholder {
+    opacity: 0;
+  }
+  .strip-placeholder-label {
+    font-size: clamp(10px, 2.5vw, 12px);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+    color: var(--ink);
+    opacity: 0.3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .strip-placeholder-label .tap-icon {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    position: relative;
+    opacity: 0.6;
+  }
+  .strip-placeholder-label .tap-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 4px; height: 4px;
+    background: currentColor;
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+  }
+  .strip.unflipped .strip-placeholder-label {
+    animation: softPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes softPulse {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 0.45; }
+  }
+
+  /* ── Flip animation ── */
+  .strip.flipping .strip-card {
+    animation: flipIn 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes flipIn {
+    0% { transform: rotateX(0deg); }
+    45% { transform: rotateX(92deg) scale(0.95); }
+    100% { transform: rotateX(0deg); }
+  }
+
+  /* ── Insult readout ── */
+  .readout {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    margin-top: 20px;
+    min-height: 48px;
+  }
+  .readout-inner {
+    background: var(--bg-deep);
+    border: 1.5px dashed var(--gutter);
+    border-radius: 8px;
+    padding: 16px 20px;
+    text-align: center;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .readout.complete .readout-inner {
+    border-style: solid;
+    border-color: var(--ink);
+    background: var(--glow);
+  }
+  .readout-text {
+    font-size: clamp(14px, 3.5vw, 18px);
+    color: var(--ink-soft);
+    line-height: 1.5;
+    font-style: italic;
+    transition: color 0.3s;
+  }
+  .readout.complete .readout-text {
+    color: var(--ink);
+    font-weight: 600;
+    font-style: normal;
+  }
+  .readout-empty {
+    font-size: clamp(11px, 2.5vw, 13px);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  /* ── Buttons ── */
+  .actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    font-family: Georgia, serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 10px 22px;
+    border-radius: 4px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    border: 2px solid var(--ink);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn-solid {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  @media (hover: hover) {
+    .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+    .btn-solid:hover { opacity: 0.85; }
+  }
+  .btn:active { transform: scale(0.96); }
+
+  .btn svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    position: relative;
+    z-index: 1;
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Responsive ── */
+  @media (max-height: 700px) {
+    .header { padding: 16px 0 12px; }
+    .strip-card { min-height: 62px; padding: 12px 16px 12px 10px; }
+    .book { gap: 4px; }
+    .readout { margin-top: 12px; }
+    .readout-inner { padding: 10px 16px; }
+    .actions { margin-top: 10px; }
+    body { padding-top: 0; }
+  }
+  @media (max-height: 580px) {
+    .header { padding: 8px 0 6px; }
+    h1 { font-size: clamp(20px, 6vw, 32px); }
+    .header-badge { display: none; }
+    .strip-card { min-height: 52px; padding: 8px 14px 8px 8px; }
+    .book { gap: 3px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .strip.flipping .strip-card { animation: none; }
+    .strip.unflipped .strip-placeholder-label { animation: none; opacity: 0.3; }
+    .strip-card { transition: none; }
+  }
+
+  /* ── Copy feedback ── */
+  .copy-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 100;
+  }
+  .copy-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+
+<div class="header">
+  <div class="header-badge">Poppy's</div>
+  <h1><span>The Ultimate</span>Insult Generator</h1>
+  <div class="tagline">Over 60 million hilarious zingers & stingers</div>
+</div>
+
+<div class="book-wrap">
+  <div class="book" id="book">
+  </div>
+</div>
+
+<div class="readout" id="readout">
+  <div class="readout-inner">
+    <div class="readout-empty" id="readoutEmpty">Tap the strips to build your insult</div>
+    <div class="readout-text" id="readoutText" style="display:none"></div>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn btn-solid" id="shuffleBtn">
+    <svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+    Shuffle All
+  </button>
+  <button class="btn btn-ghost" id="resetBtn">
+    <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+    Reset
+  </button>
+  <button class="btn btn-ghost" id="copyBtn" style="display:none">
+    <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    Copy
+  </button>
+</div>
+
+<div class="footer">Inspired by Mike Barfield's book</div>
+
+<div class="copy-toast" id="copyToast">Copied to clipboard!</div>
+
+<script>
+const COLORS = ['#E8772E','#C8D23C','#E85D8A','#4ECDC4','#AB7CE6','#F5A623','#5BC0EB','#E84855'];
+const PLACEHOLDER_LABELS = ['Tap for a person','Tap for an action','Tap for a thing','Tap for a twist','Tap for a creature'];
+
+const DATA = {
+  persons: [
+    "Your mum","Your dad","Your best friend","Your teacher",
+    "Your boss","Your neighbor","Your dentist","The Queen",
+    "Your cat","Your dog","The person you will marry",
+    "Your evil twin","Your imaginary friend","Your PE teacher",
+    "The kid next door","Your grandma","Your babysitter",
+    "The school bully","Your future self","Your hairdresser",
+    "The postman","Your doctor","Santa Claus","Your uncle",
+    "The lunch lady","Your crush","The mayor","Your goldfish",
+    "A random stranger","Your reflection","Your ex",
+    "Your driving instructor","Your landlord","The pizza delivery guy",
+    "Your therapist","Your gym buddy","The class nerd",
+    "Your cousin","Your parole officer","The weatherman",
+    "Your stepbrother","The crossing guard","Your plumber",
+    "Your barista","The IT guy","Your yoga instructor",
+    "Your pen pal","The school principal","Your accountant",
+    "Your clone","The person behind you","Your childhood hero",
+    "Your nemesis","Your fairy godmother","The bus driver"
+  ],
+  actions: [
+    "smells like","looks like","dances like",
+    "is best friends forever with","is secretly in love with",
+    "sings like","runs like","eats like","sleeps with",
+    "styles themselves on","talks like","fights like",
+    "thinks they are","once kissed","dreams about",
+    "snores like","is as clever as","is as dumb as",
+    "is jealous of","takes selfies with","argues like",
+    "cooks like","drives like","hides from",
+    "is afraid of","burps like","waddles like",
+    "flirts like","cheats at cards with","has a tattoo of",
+    "worships","is the stunt double for",
+    "does an impression of","went to prom with",
+    "has a shrine dedicated to","communicates only by barking at",
+    "enters talent shows dressed as","shares a toothbrush with",
+    "is emotionally dependent on","has recurring dreams about",
+    "started a podcast with","got matching tattoos with",
+    "is in a custody battle over","builds sandcastles shaped like",
+    "won a staring contest against","slow claps for",
+    "wrote fan fiction about","does trust falls with",
+    "sends unsolicited advice to","has a secret handshake with",
+    "accidentally proposed to","keeps a scrapbook about"
+  ],
+  adjNouns: [
+    "a mouldy cheese","a giant dung beetle","a scabby crab",
+    "a soggy biscuit","a hairy armpit","a flatulent hippo",
+    "a wonky shopping cart","a sunburnt walrus",
+    "a deflated balloon","an expired yoghurt",
+    "a rusty trombone","a sweaty gym sock",
+    "a confused penguin","a radioactive turnip",
+    "a three-legged donkey","a broken toilet seat",
+    "a lukewarm bath","a mouldy sandwich",
+    "a bald hedgehog","a damp sponge",
+    "a nervous chihuahua","an overcooked noodle",
+    "a lumpy mattress","a burnt sausage",
+    "a grumpy tortoise","a cross-eyed parrot",
+    "a melted ice cream","a sad trombone",
+    "a crusty pie","a leaky bucket",
+    "a constipated bulldog","a deep-fried shoe",
+    "a paranoid squirrel","a microwaved salad",
+    "a drunk flamingo","a haunted toilet",
+    "a sentient mullet","a regretful tattoo",
+    "a middle-aged skateboard","a passive-aggressive cactus",
+    "an emotional support brick","a secondhand toupee",
+    "a weaponized fruitcake","a suspicious casserole",
+    "a fossilized chicken nugget","a judgmental pelican",
+    "a malfunctioning roomba","an unlicensed dentist",
+    "a half-eaten corndog","a philosophical potato",
+    "a vengeful garden gnome","a dehydrated sponge",
+    "an overly confident slug","a discontinued air freshener"
+  ],
+  connectors: [
+    "but has no respect for","and lives in a cave with",
+    "and poses for selfies with","but secretly admires",
+    "and goes on holiday with","but is scared of",
+    "and shares a bath with","but blames everything on",
+    "and writes love letters to","but picks fights with",
+    "and does karaoke with","but owes money to",
+    "and swaps clothes with","but has nightmares about",
+    "and starts a band with","but can't stop staring at",
+    "and arm-wrestles","but always loses to",
+    "and builds a fort with","but is haunted by",
+    "and goes camping with","but is allergic to",
+    "and slow-dances with","but trips over",
+    "and shares a bunk bed with","but is in witness protection from",
+    "and runs a book club with","but files lawsuits against",
+    "and challenges to a duel","but sends passive-aggressive texts to",
+    "and co-parents a hamster with","but ghosted",
+    "and shares a Netflix password with","but catfished",
+    "and entered a three-legged race with","but got dumped for",
+    "and started a cult with","but was outbid on eBay by",
+    "and got trapped in a lift with","but keeps getting upstaged by",
+    "and accidentally married","but voted off the island for",
+    "and has a blood pact with","but was replaced at work by",
+    "and went viral because of","but got detention because of",
+    "and binge-watches reality TV with","but swore a vendetta against",
+    "and was stranded on a desert island with",
+    "but ran screaming from","and shares custody of a plant with",
+    "but has an irrational fear of"
+  ],
+  creatures: [
+    "badgers","Tom Cruise","Gremlins","Mickey Mouse",
+    "a one-eyed pirate","Bigfoot","the Loch Ness Monster",
+    "a very angry goose","Darth Vader","SpongeBob",
+    "a pack of wild hamsters","Shrek","a confused llama",
+    "Batman","a swarm of bees","the Tooth Fairy",
+    "King Kong","a grumpy elf","Godzilla",
+    "Captain Hook","a troupe of clowns","Gandalf",
+    "a herd of goats","a ninja turtle","Dracula",
+    "the Easter Bunny","Beyonce","a yeti",
+    "Mr. Bean","a flock of seagulls","Dolly Parton",
+    "a raccoon in a tuxedo","Severus Snape","a sentient roomba",
+    "Guy Fieri","the Kraken","a passive-aggressive owl",
+    "Scooby-Doo","three raccoons in a trenchcoat",
+    "Nicolas Cage","Peppa Pig","a very old wizard",
+    "Danny DeVito","an army of squirrels","Jar Jar Binks",
+    "Medusa","a philosophical octopus","the Grinch",
+    "Vladimir Putin's horse","a tap-dancing crab",
+    "Dwayne 'The Rock' Johnson","Pikachu",
+    "an extremely buff hamster","Queen Elizabeth's corgis",
+    "Gordon Ramsay","a horde of angry chihuahuas"
+  ]
+};
+
+const CATS = ['persons','actions','adjNouns','connectors','creatures'];
+const TYPES = ['display-type','action-type','display-type','action-type','display-type'];
+
+const book = document.getElementById('book');
+const readout = document.getElementById('readout');
+const readoutText = document.getElementById('readoutText');
+const readoutEmpty = document.getElementById('readoutEmpty');
+const copyBtn = document.getElementById('copyBtn');
+const copyToast = document.getElementById('copyToast');
+
+const strips = [];
+const state = CATS.map(() => ({ flipped: false, value: null, lastIndex: -1, colorIndex: -1 }));
+
+function pick(arr, lastIdx) {
+  let i;
+  do { i = Math.floor(Math.random() * arr.length); } while (i === lastIdx && arr.length > 1);
+  return { value: arr[i], index: i };
+}
+
+function pickColor(lastCI) {
+  let i;
+  do { i = Math.floor(Math.random() * COLORS.length); } while (i === lastCI);
+  return { color: COLORS[i], index: i };
+}
+
+function haptic() {
+  if (navigator.vibrate) navigator.vibrate(12);
+}
+
+function buildStrips() {
+  CATS.forEach((cat, i) => {
+    const el = document.createElement('div');
+    const c = pickColor(-1);
+    state[i].colorIndex = c.index;
+    el.className = `strip unflipped ${TYPES[i]}`;
+    el.innerHTML = `
+      <div class="strip-card" style="background:${c.color}">
+        <span class="strip-text"></span>
+        <div class="strip-placeholder">
+          <span class="strip-placeholder-label">
+            <span class="tap-icon"></span>${PLACEHOLDER_LABELS[i]}
+          </span>
+        </div>
+      </div>`;
+    el.addEventListener('click', () => flip(i));
+    book.appendChild(el);
+    strips.push(el);
+  });
+}
+
+function flip(i, skipHaptic) {
+  const el = strips[i];
+  const card = el.querySelector('.strip-card');
+  const text = el.querySelector('.strip-text');
+  if (!skipHaptic) haptic();
+  el.classList.add('flipping');
+
+  setTimeout(() => {
+    const { value, index } = pick(DATA[CATS[i]], state[i].lastIndex);
+    const { color, index: ci } = pickColor(state[i].colorIndex);
+    state[i].flipped = true;
+    state[i].value = value;
+    state[i].lastIndex = index;
+    state[i].colorIndex = ci;
+    el.classList.remove('unflipped');
+    card.style.background = color;
+    text.textContent = value;
+    updateReadout();
+  }, 140);
+
+  setTimeout(() => el.classList.remove('flipping'), 320);
+}
+
+function updateReadout() {
+  const allFlipped = state.every(s => s.flipped);
+  const anyFlipped = state.some(s => s.flipped);
+
+  if (!anyFlipped) {
+    readoutEmpty.style.display = '';
+    readoutText.style.display = 'none';
+    copyBtn.style.display = 'none';
+    readout.classList.remove('complete');
+    return;
+  }
+
+  const parts = state.map((s, i) => s.flipped ? s.value : '___');
+  const sentence = parts.join(' ');
+
+  readoutEmpty.style.display = 'none';
+  readoutText.style.display = '';
+  readoutText.textContent = allFlipped ? sentence : sentence;
+  copyBtn.style.display = allFlipped ? '' : 'none';
+  readout.classList.toggle('complete', allFlipped);
+}
+
+function shuffleAll() {
+  haptic();
+  strips.forEach((_, i) => {
+    setTimeout(() => flip(i, true), i * 80);
+  });
+}
+
+function resetAll() {
+  haptic();
+  strips.forEach((el, i) => {
+    el.classList.add('flipping');
+    setTimeout(() => {
+      const { color, index: ci } = pickColor(state[i].colorIndex);
+      state[i] = { flipped: false, value: null, lastIndex: -1, colorIndex: ci };
+      el.classList.add('unflipped');
+      el.querySelector('.strip-text').textContent = '';
+      el.querySelector('.strip-card').style.background = color;
+      updateReadout();
+    }, 140);
+    setTimeout(() => el.classList.remove('flipping'), 320);
+  });
+}
+
+function copyInsult() {
+  const sentence = state.map(s => s.value).join(' ');
+  navigator.clipboard.writeText(sentence).then(() => {
+    copyToast.classList.add('show');
+    setTimeout(() => copyToast.classList.remove('show'), 1800);
+  });
+}
+
+document.getElementById('shuffleBtn').addEventListener('click', shuffleAll);
+document.getElementById('resetBtn').addEventListener('click', resetAll);
+copyBtn.addEventListener('click', copyInsult);
+
+buildStrips();
+</script>
