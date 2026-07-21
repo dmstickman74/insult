@@ -1,0 +1,15 @@
+{
+  "appId": "com.poppys.insultgenerator",
+  "appName": "Poppy's Insult Generator",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#1c1108"
+  },
+  "android": {
+    "backgroundColor": "#1c1108"
+  }
+}

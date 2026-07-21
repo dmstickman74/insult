@@ -948,4 +948,8 @@ document.getElementById('resetBtn').addEventListener('click', resetAll);
 copyBtn.addEventListener('click', copyInsult);
 
 buildStrips();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/insult/sw.js').catch(() => {});
+}
 </script>

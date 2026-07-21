@@ -1,0 +1,24 @@
+{
+  "name": "poppys-insult-generator",
+  "version": "1.0.0",
+  "description": "Poppy's Ultimate Insult Generator - Over 16 billion hilarious zingers & stingers",
+  "scripts": {
+    "cap:init:android": "npx cap add android",
+    "cap:init:ios": "npx cap add ios",
+    "cap:sync": "npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "cap:open:ios": "npx cap open ios"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmstickman74/insult.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/ios": "^8.4.2"
+  }
+}
