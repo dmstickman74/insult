@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Poppy's Ultimate Insult Generator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
@@ -16,6 +17,8 @@
     --glow: rgba(255,200,60,0.12);
     --card-shadow: 0 2px 6px rgba(28,17,8,0.18), 0 0 0 1px rgba(28,17,8,0.06);
     --card-shadow-hover: 0 4px 16px rgba(28,17,8,0.22), 0 0 0 1px rgba(28,17,8,0.1);
+    --accent: #E84855;
+    --accent-green: #C8D23C;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -70,7 +73,6 @@
     overflow-x: hidden;
   }
 
-  /* ── Background texture ── */
   body::before {
     content: '';
     position: fixed;
@@ -114,6 +116,26 @@
     text-transform: uppercase;
     font-weight: 600;
   }
+  .active-packs-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--bg-deep);
+    transition: background 0.15s;
+  }
+  .active-packs-indicator:hover { background: var(--gutter); }
+  .pack-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
 
   /* ── Book container ── */
   .book-wrap {
@@ -155,7 +177,6 @@
     overflow: hidden;
   }
 
-  /* Paper grain on each card */
   .strip-card::before {
     content: '';
     position: absolute;
@@ -165,7 +186,6 @@
     pointer-events: none;
     z-index: 1;
   }
-
 
   @media (hover: hover) {
     .strip:hover .strip-card {
@@ -178,7 +198,6 @@
     box-shadow: var(--card-shadow);
   }
 
-  /* ── Text ── */
   .strip-text {
     position: relative;
     z-index: 2;
@@ -200,13 +219,8 @@
     letter-spacing: 0.02em;
   }
 
-  /* ── Unflipped placeholder ── */
-  .strip.unflipped .strip-text {
-    opacity: 0;
-  }
-  .strip.unflipped .strip-card {
-    position: relative;
-  }
+  .strip.unflipped .strip-text { opacity: 0; }
+  .strip.unflipped .strip-card { position: relative; }
   .strip-placeholder {
     position: absolute;
     inset: 0;
@@ -218,9 +232,7 @@
     opacity: 1;
     transition: opacity 0.15s;
   }
-  .strip:not(.unflipped) .strip-placeholder {
-    opacity: 0;
-  }
+  .strip:not(.unflipped) .strip-placeholder { opacity: 0; }
   .strip-placeholder-label {
     font-size: clamp(10px, 2.5vw, 12px);
     text-transform: uppercase;
@@ -258,7 +270,6 @@
     50% { opacity: 0.45; }
   }
 
-  /* ── Flip animation ── */
   .strip.flipping .strip-card {
     animation: flipIn 0.32s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -320,7 +331,7 @@
     justify-content: center;
   }
   .btn {
-    font-family: Georgia, serif;
+    font-family: inherit;
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
@@ -345,9 +356,15 @@
     background: var(--ink);
     color: var(--bg);
   }
+  .btn-accent {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
   @media (hover: hover) {
     .btn-ghost:hover { background: var(--ink); color: var(--bg); }
     .btn-solid:hover { opacity: 0.85; }
+    .btn-accent:hover { opacity: 0.85; }
   }
   .btn:active { transform: scale(0.96); }
 
@@ -385,7 +402,7 @@
   @media (max-height: 580px) {
     .header { padding: 8px 0 6px; }
     .logo { max-width: 280px; }
-.strip-card { min-height: 52px; padding: 8px 14px 8px 8px; }
+    .strip-card { min-height: 52px; padding: 8px 14px 8px 8px; }
     .book { gap: 3px; }
   }
 
@@ -395,7 +412,7 @@
     .strip-card { transition: none; }
   }
 
-  /* ── Copy feedback ── */
+  /* ── Toast ── */
   .copy-toast {
     position: fixed;
     bottom: 80px;
@@ -417,6 +434,221 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+
+  /* ── Store Modal ── */
+  .store-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .store-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .store-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 85vh;
+    max-height: 85dvh;
+    background: var(--bg);
+    border-radius: 20px 20px 0 0;
+    z-index: 201;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .store-overlay.open + .store-panel,
+  .store-panel.open {
+    transform: translateY(0);
+  }
+  .store-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 12px;
+    border-bottom: 1px solid var(--gutter);
+    flex-shrink: 0;
+  }
+  .store-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .store-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--bg-deep);
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .store-close:hover { background: var(--gutter); }
+  .store-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px 20px 40px;
+    flex: 1;
+  }
+  .store-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin: 20px 0 10px;
+  }
+  .store-section-title:first-child { margin-top: 4px; }
+
+  /* Pack cards */
+  .pack-card {
+    background: var(--bg-deep);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.15s;
+  }
+  .pack-card:hover { box-shadow: var(--card-shadow-hover); }
+  .pack-emoji {
+    font-size: 36px;
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    border-radius: 12px;
+  }
+  .pack-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .pack-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .pack-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+  .pack-count {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .pack-action {
+    flex-shrink: 0;
+  }
+  .pack-btn {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .pack-btn-buy {
+    background: var(--accent);
+    color: #fff;
+  }
+  .pack-btn-buy:hover { opacity: 0.85; }
+  .pack-btn-active {
+    background: var(--accent-green);
+    color: #1c1108;
+  }
+  .pack-btn-inactive {
+    background: var(--gutter);
+    color: var(--ink-soft);
+  }
+  .pack-btn-inactive:hover { background: var(--accent-green); color: #1c1108; }
+  .pack-btn-free {
+    background: transparent;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 8px 10px;
+    cursor: default;
+  }
+  .pack-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .badge-kids { background: #5BC0EB; color: #1c1108; }
+  .badge-adult { background: #E85D8A; color: #fff; }
+  .badge-new { background: var(--accent-green); color: #1c1108; }
+
+  /* ── Bundle banner ── */
+  .bundle-banner {
+    background: linear-gradient(135deg, var(--accent) 0%, #E85D8A 100%);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    color: #fff;
+    text-align: center;
+  }
+  .bundle-title {
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .bundle-price {
+    font-size: 13px;
+    margin: 4px 0 8px;
+    opacity: 0.9;
+  }
+  .bundle-price s { opacity: 0.6; }
+  .bundle-btn {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 20px;
+    border: 2px solid #fff;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: all 0.15s;
+  }
+  .bundle-btn:hover { background: #fff; color: var(--accent); }
 </style>
 
 <div class="header">
@@ -434,12 +666,12 @@
     <text x="132" y="83.5" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-weight="800" font-size="19" letter-spacing="-0.2" fill="#201e1d">ULTIMATE</text>
     <text x="238" y="83.5" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-weight="800" font-size="19" letter-spacing="-0.2" fill="#f3f2f2">INSULT GENERATOR</text>
   </svg>
-  <div class="tagline">Over 16 billion hilarious zingers & stingers</div>
+  <div class="tagline" id="tagline">Over 16 billion hilarious zingers & stingers</div>
+  <div class="active-packs-indicator" id="packIndicator" onclick="openStore()"></div>
 </div>
 
 <div class="book-wrap">
-  <div class="book" id="book">
-  </div>
+  <div class="book" id="book"></div>
 </div>
 
 <div class="readout" id="readout">
@@ -462,363 +694,1695 @@
     <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
     Copy
   </button>
+  <button class="btn btn-accent" id="storeBtn" onclick="openStore()">
+    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    Packs
+  </button>
 </div>
 
 <div class="footer">Inspired by Mike Barfield's book</div>
 
 <div class="copy-toast" id="copyToast">Copied to clipboard!</div>
 
+<!-- Store modal -->
+<div class="store-overlay" id="storeOverlay" onclick="closeStore()"></div>
+<div class="store-panel" id="storePanel">
+  <div class="store-header">
+    <div class="store-title">Insult Packs</div>
+    <button class="store-close" onclick="closeStore()">&times;</button>
+  </div>
+  <div class="store-body" id="storeBody"></div>
+</div>
+
 <script>
 const COLORS = ['#E8772E','#C8D23C','#E85D8A','#4ECDC4','#AB7CE6','#F5A623','#5BC0EB','#E84855'];
 const PLACEHOLDER_LABELS = ['Tap for a person','Tap for an action','Tap for a thing','Tap for a twist','Tap for a creature'];
-
-const DATA = {
-  persons: [
-    "Your mom","Your dad","Your best friend","Your teacher",
-    "Your cat","Your dog","The person you will marry",
-    "Your evil twin","Your imaginary friend","Your PE teacher",
-    "The kid next door","Your grandma","Your babysitter",
-    "The school bully","Your future self","Your little sister",
-    "Your big brother","Santa Claus","Your uncle",
-    "Your crush","Your goldfish","Your hamster",
-    "Your pet rock","Your annoying little cousin",
-    "The class guinea pig","Whoever farted just now",
-    "The kid who picks their nose in class",
-    "The kid who always tells on you","The lunch lady",
-    "The substitute teacher","The kid who eats glue",
-    "The kid who smells like cheese","Your mom's belly button",
-    "The boy who wet the bed at camp","Your dad on the toilet",
-    "The girl who burped the alphabet","The kid who licks windows",
-    "Your brother's sweaty friend","The teacher who spits when they talk",
-    "The kid who always has a crusty nose","Your grandma after beans",
-    "The boy who farts during the school assembly","Your uncle in his Speedos",
-    "The kid who sniffs markers","Your dad in the bath",
-    "The boy who ate a worm for a dollar","The kid with the stinky lunchbox",
-    "Your mom's toenails","The class nose-picker champion",
-    "The kid who talks with food in their mouth","Your hairy uncle Dave",
-    "The kid who peed in the pool","Your mom's bad cooking",
-    "The boy who got his tongue stuck to a pole","Your dad's back hair",
-    "The girl who can burp on command","The kid caught eating pet food",
-    "Your grandma's false teeth","The kid who brought a dead frog to school",
-    "Your brother after taco night","The boy who sneezed on the birthday cake",
-    "The kid who sits in puddles","Your mom's mustache",
-    "The boy who still picks his nose","The kid who smells their fingers",
-    "The girl who put gum in your hair","Your dad's sweaty feet",
-    "The kid who drinks bathwater","The kid who wiped a booger on you",
-    "The boy whose sneakers stink up the whole room",
-    "The girl who can do armpit farts with both arms",
-    "The kid who always has food on their face",
-    "Your brother when he hasn't showered",
-    "The kid who talks to their belly button",
-    "The boy who wore the same socks for a week",
-    "The kid who picks scabs and eats them",
-    "Your sister's smelly hamster",
-    "The kid who got their finger stuck up their nose",
-    "The boy who sneezed and it went everywhere",
-    "The kid who always forgets to flush",
-    "Your grandma when she takes her teeth out",
-    "The kid who accidentally drank fish tank water",
-    "The kid who sneezed into the birthday cake",
-    "Your dad after an all-you-can-eat buffet",
-    "The boy who stuck a French fry up his nose",
-    "The kid whose burps smell like rotten eggs",
-    "The girl who can make fart sounds with her neck",
-    "Your brother after eating 47 chicken nuggets",
-    "The kid who found a toenail in the mac and cheese",
-    "The boy who licked the school bus window",
-    "The kid who peed their pants from laughing too hard",
-    "Your dog after rolling in something dead",
-    "The kid who barfed on the roller coaster",
-    "The boy who ate a crayon on a dare",
-    "The kid whose socks could knock out a skunk",
-    "Your uncle who falls asleep and drools at Thanksgiving",
-    "The kid who sneezed and a noodle came out",
-    "The boy who scratched his butt then touched the pizza",
-    "The kid who got bubblegum stuck in their eyebrow",
-    "The girl who can queef the alphabet",
-    "The kid who brought a dead bug collection to show and tell",
-    "Your mom's earwax",
-    "The kid who picks their toenails at the lunch table"
-  ],
-  actions: [
-    "smells like","looks like","dances like",
-    "is best friends forever with","is secretly in love with",
-    "sings like","runs like","eats like",
-    "talks like","fights like","thinks they are",
-    "once kissed","dreams about","snores like",
-    "is as clever as","is as dumb as","is jealous of",
-    "takes selfies with","waddles like","hides from",
-    "is afraid of","burps like","does an impression of",
-    "enters talent shows dressed as","shares a toothbrush with",
-    "builds sandcastles shaped like","won a staring contest against",
-    "has a secret handshake with",
-    "did a massive burp in front of","picked their nose and wiped it on",
-    "did a fart that smelled like","got their head stuck in a toilet with",
-    "had a booger fight with","threw up on the shoes of",
-    "accidentally spat on","wet themselves laughing at",
-    "got caught picking a wedgie by","fell face-first into the lunch of",
-    "let out a silent but deadly one near","tripped and landed on",
-    "sneezed spaghetti at","got pantsed in front of",
-    "had a snot bubble in front of","did an armpit fart solo for",
-    "let a fart slip during a hug with","ate something off the floor in front of",
-    "wiped a booger under the desk of","drooled in their sleep on",
-    "did a spit take all over","got explosive diarrhea in front of",
-    "made a butt trumpet noise at","scratched their butt then high-fived",
-    "sniffed their own armpit in front of","blew a snot rocket at",
-    "sharted during a piggyback with","burped the national anthem for",
-    "licked the window next to","left a skidmark on the chair of",
-    "did a running belly flop onto","accidentally drooled on",
-    "clogged the toilet right before","made an eye-watering stink next to",
-    "did a Dutch oven on","ate a worm sandwich in front of",
-    "stuck a booger on the back of","did a belly slide through mud towards",
-    "let rip during silence with","compared toe jam with",
-    "played pull-my-finger with","did a spit bubble contest with",
-    "drank puddle water to impress","made armpit fart music for",
-    "did the loudest burp ever heard by","stuck their finger up their nose at",
-    "smelled their own shoe and offered it to",
-    "wore the same underwear for a week to annoy",
-    "did a fake sneeze with real spit on",
-    "left a stink so bad it cleared a room with",
-    "tried to lick their own elbow in front of",
-    "made a fart noise with their hands at",
-    "got snot on the sleeve of","took a pee behind a bush with",
-    "got chewing gum stuck in the hair of",
-    "sat on a jelly sandwich in front of",
-    "dribbled juice down their chin at",
-    "got a wart from sharing shoes with",
-    "did a sneeze-fart combo in front of",
-    "dropped their shorts by accident near",
-    "got booger on the homework of",
-    "made a barf noise that actually made someone puke near",
-    "swallowed a fly while talking to",
-    "got their tongue stuck to a popsicle in front of",
-    "did a triple-decker burp-fart-hiccup in front of",
-    "wiped their nose on the shirt of","projectile-sneezed on the lunch of",
-    "picked a scab and flicked it at","let out a fart so long it had chapters near",
-    "did a spit take of chocolate milk on","belly-flopped into a mud puddle next to",
-    "gagged on their own burp in front of","dripped sweat into the drink of",
-    "got their hand stuck in the toilet trying to impress",
-    "left a butt print on the chair of","farted into a megaphone aimed at",
-    "sneezed out a chunk of lunch on","made a puke face so realistic it scared",
-    "blew a snot bubble the size of a baseball at",
-    "left a trail of crumbs and boogers behind them near",
-    "did a handstand and their shoe fell in the face of",
-    "ate a bug to gross out","had a booger hanging from their nose all day near",
-    "did a cannonball into a puddle and splashed"
-  ],
-  adjNouns: [
-    "a moldy cheese","a giant dung beetle","a scabby crab",
-    "a soggy cracker","a hairy armpit","a flatulent hippo",
-    "a sunburnt walrus","a deflated balloon",
-    "a sweaty gym sock","a confused penguin",
-    "a three-legged donkey","a broken toilet seat",
-    "a moldy sandwich","a bald hedgehog",
-    "an overcooked noodle","a burnt sausage",
-    "a grumpy tortoise","a cross-eyed parrot",
-    "a melted ice cream","a crusty pie",
-    "a constipated bulldog","a deep-fried shoe",
-    "a paranoid squirrel","a haunted toilet",
-    "a fossilized chicken nugget","a half-eaten corndog",
-    "a vengeful garden gnome",
-    "a giant booger","a toilet that won't flush",
-    "a wet fart in an elevator","a diaper full of surprises",
-    "a pimple on a butt","a dog's chew toy",
-    "a puddle of barf","a furry belly button",
-    "a crusty booger collection","a pair of skidmarked underwear",
-    "a burp that tastes like eggs","a blocked toilet",
-    "a bucket of snot","a sweaty armpit sandwich",
-    "a toenail clipping collection","a blob of earwax",
-    "a fart trapped in a jar","a toilet brush that's seen things",
-    "a nose hair the length of a ruler","a week-old belly button fluff ball",
-    "a snotty tissue collection","a dog fart in a small car",
-    "a pair of underwear worn three days straight","a burp that could peel wallpaper",
-    "a wart the size of a quarter","an inside-out belly button",
-    "a poo that won't flush","a sweaty cheese sandwich",
-    "a booger wall behind someone's bed","a bath full of baked beans",
-    "a Band-Aid found in a swimming pool","a warm toilet seat in a public restroom",
-    "a mystery stain on a bus seat","a hairball coughed up by a cat",
-    "a fart that set off a smoke alarm","a zit that popped during class",
-    "a booger the size of a grape","a toilet that overflowed at a party",
-    "a belly button full of lint and cheese","a burp that lasted 12 seconds",
-    "a pair of underwear found on the playground","a sneeze that hit three people",
-    "a blister full of goo","a toenail that fell off in your soup",
-    "a slug found in someone's salad",
-    "a ball of chewed-up gum from under a desk","a nosebleed during a school photo",
-    "a puddle of drool on a pillow","a wart shaped like a butt",
-    "a sick bag from a rollercoaster",
-    "a fart so loud the dog barked","a banana skin left in a bag for a month",
-    "a scab shaped like a country","a caterpillar found in your sandwich",
-    "a sweaty headband full of dandruff","a chewed pen that leaked in someone's mouth",
-    "a sock so stiff it stands up on its own","a burp that smelled like a garbage truck",
-    "a nostril full of green goo","a puddle of mystery liquid",
-    "a turd that looked like a celebrity","a lunchbox that grew its own ecosystem",
-    "a sneeze string that wouldn't break","a booger that bounced when it hit the floor",
-    "a fart so bad the plants died","a pair of goggles full of someone else's sweat",
-    "a toilet plunger with a mysterious stain","a loogie stuck to a window",
-    "a booger rolled into a perfect ball","a fart trapped in a sleeping bag",
-    "a belch that rattled the windows","a puddle of drool the size of a lake",
-    "a piece of gum chewed by six different people","a skidmark on a trampoline",
-    "a diaper that exploded at a birthday party","a chunk of earwax on a Q-tip",
-    "a fly that landed on every piece of food","a nose hair that could double as a jump rope",
-    "a pimple with its own zip code","a sneeze that sprayed the entire front row",
-    "a sandwich someone sat on then ate anyway","a toilet seat that was still warm from a stranger",
-    "a burp that tasted like yesterday's dinner","a puddle of barf at the top of a water slide",
-    "a toe cheese collection in a jar","a gym shirt that hasn't been washed since September"
-  ],
-  connectors: [
-    "and lives in a cave with","but is scared of",
-    "and shares a bath with","but blames everything on",
-    "and writes love letters to","but picks fights with",
-    "and swaps clothes with","but has nightmares about",
-    "and starts a band with","but can't stop staring at",
-    "and arm-wrestles","but always loses to",
-    "and builds a fort with","but is haunted by",
-    "and goes camping with","but is allergic to",
-    "but trips over","and shares a bunk bed with",
-    "and entered a three-legged race with",
-    "and got trapped in an elevator with",
-    "but got detention because of",
-    "but ran screaming from",
-    "and had a farting contest with","but got wedgied by",
-    "and had a burping competition with","but got slimed by",
-    "and ate worms for a dare with","but stepped in dog poo because of",
-    "and had a booger-flicking war with","but got their shorts pulled down by",
-    "and played toilet tag with","but got a wet willy from",
-    "and had a food fight with","but sat on a whoopee cushion left by",
-    "and did a stink bomb prank on","but got noogied by",
-    "and compared belly buttons with","but got dunked headfirst by",
-    "and had a turd-poking contest with",
-    "and sniffed each other's feet with","but got a dead leg from",
-    "and competed in a nose-picking race with","but got a purple nurple from",
-    "and played who-can-make-the-grossest-noise with",
-    "but ate a dare bug because of",
-    "and did a synchronized butt-wiggle with",
-    "but got a stinky sock thrown at them by",
-    "and had a spitting distance contest with","but got their face licked by",
-    "and compared armpit smells with","but accidentally peed on the shoes of",
-    "and did a gross-out challenge with",
-    "but got a gross kiss from their grandma because of",
-    "and made fake vomit sounds at","but slipped on a banana peel left by",
-    "and had a who-can-eat-more-beans contest with","but got a swirly from",
-    "and made armpit fart duets with","but got pantsed at field day by",
-    "and did a belly button lint trade with","but got their head flushed by",
-    "and invented a new fart sound with",
-    "but got saran-wrapped to a chair by",
-    "and had a spit bubble blowing contest with",
-    "but got their sandwich sat on by",
-    "and played guess-that-smell with","but got fake-sneezed on by",
-    "and did a worm-eating dare with",
-    "but got their face drawn on at a sleepover by",
-    "and rated each other's burps with",
-    "but got a wet sponge down the back from",
-    "and measured each other's boogers against",
-    "but got toothpasted in their sleep by",
-    "and had a race to see who could make the worst smell with",
-    "but got their shoe hidden and filled with jelly by",
-    "and had a contest to see who has the hairiest legs with",
-    "but got a snake bite from",
-    "and stuck their head in a trash can to impress",
-    "but got a face full of silly string from",
-    "and did the worm across the playground for",
-    "but got their lunch stolen and licked by",
-    "and had a competition to make the grossest face with",
-    "but got their drink secretly swapped for vinegar by",
-    "and played truth or dare and had to sniff the shoe of",
-    "but got a booger wiped on their shoulder by",
-    "and tried to outfart","but got their eyebrows drawn on by",
-    "and had a bellyflop competition with",
-    "but got their hand put in warm water at a sleepover by",
-    "and had a who-can-make-the-grossest-armpit-noise contest with",
-    "but got a wet booger flicked at them by",
-    "and did a synchronized belly jiggle with",
-    "but got their face pushed into a cake by",
-    "and had a competition to see who could eat the most hot dogs with",
-    "but got a spit wad launched at them by",
-    "and played guess-what-I-ate-from-my-burp with",
-    "but got their underwear frozen at a sleepover by",
-    "and had a staring contest until someone farted with",
-    "but got a fake spider put in their lunch by",
-    "and competed in a who-has-the-smelliest-feet contest with",
-    "but got tickled until they snorted milk out their nose by",
-    "and made a booger sculpture to give to",
-    "but got a wedgie so bad it ripped their underwear from",
-    "and had a biggest-burp-after-soda challenge with",
-    "but accidentally sneezed mac and cheese onto",
-    "and played the floor-is-lava-but-the-lava-is-barf with",
-    "but got their hair filled with slime by",
-    "and did a butt-bump so hard they both fell over with",
-    "but got an ice cube dropped down their back by"
-  ],
-  creatures: [
-    "badgers","Gremlins","Mickey Mouse",
-    "Bigfoot","the Loch Ness Monster",
-    "a very angry goose","Darth Vader","SpongeBob",
-    "a pack of wild hamsters","Shrek","a confused llama",
-    "Batman","a swarm of bees","the Tooth Fairy",
-    "King Kong","Godzilla","Captain Hook",
-    "a troupe of clowns","a ninja turtle","Dracula",
-    "the Easter Bunny","a yeti","Scooby-Doo",
-    "Peppa Pig","Pikachu","the Grinch",
-    "a horde of angry chihuahuas",
-    "a butt-scratching monkey","Skibidi Toilet",
-    "a feral Elf on the Shelf","a farting unicorn",
-    "the Annoying Orange","Minecraft Steve",
-    "a burping dragon","Crazy Frog",
-    "a poop emoji come to life","Sonic the Hedgehog",
-    "a zombie PE teacher","a dabbing skeleton",
-    "MrBeast's cameraman","Roblox noobs",
-    "a T-Rex with tiny arms","Wednesday Addams",
-    "a booger-eating troll","a talking toilet",
-    "a vomiting volcano","a diaper-wearing dinosaur",
-    "a burping baby Yoda","a cockroach in a top hat",
-    "the monster under your bed",
-    "a feral toddler on sugar","a seagull that stole your fries",
-    "a sneezing dragon","the Fortnite default skin",
-    "a twerking snowman","a pug with gas",
-    "Shrek's earwax candle","a dribbling zombie",
-    "Hagrid's belly button lint","the fly buzzing around a dog turd",
-    "a toilet ghost","Donkey from Shrek after Taco Bell",
-    "a diaper-wearing goblin","Mario after eating bad mushrooms",
-    "a Minion with diarrhea","Elsa but she only freezes toilets",
-    "a booger-flicking leprechaun",
-    "Thanos but he snaps and everyone farts",
-    "Pikachu with a runny nose","a chicken nugget that came alive",
-    "a zombie hamster","SpongeBob's stinky boots",
-    "a butt-wiggling caterpillar","the world's gassiest unicorn",
-    "Baby Shark after too many beans","Patrick Star's belly button",
-    "a slug in a top hat","Olaf if he was made of snot",
-    "a Roblox character that glitched into a toilet",
-    "Bowser with a blocked nose","a snot-dripping snowman",
-    "a Creeper that farts instead of exploding",
-    "an Among Us imposter hiding in a toilet",
-    "a Piglin that rolled in mud","Waluigi in his underwear",
-    "a Pokémon that only knows the move Stink Bomb",
-    "a skeleton that rattles when it farts",
-    "Kirby after eating a whole onion",
-    "a zombie chicken","Luigi's sweaty hat",
-    "a Minion that fell in a porta-potty",
-    "a gummy bear that melted in someone's pocket",
-    "the world's largest dung beetle",
-    "a hamster on a sugar rush",
-    "a seagull covered in ketchup",
-    "Yoshi after sitting on a whoopee cushion",
-    "a llama that spits boogers",
-    "a goblin that picks its nose and eats it","Donkey Kong's sweaty armpits",
-    "a raccoon that lives in a dumpster","a Pikachu that shocks the toilet when it sits down",
-    "a T-Rex trying to wipe its own butt","Shrek's belly button cheese",
-    "a troll that lives under a porta-potty","a burping parrot",
-    "a snail leaving a trail of boogers","Mario after eating too many mushroom burritos",
-    "a frog that burps flies back up","a dragon with terrible morning breath",
-    "a zombie that fell apart in the ball pit","Baby Yoda after a diaper blowout",
-    "a Fortnite player who hasn't showered in a week","a slime monster from the school cafeteria",
-    "Groot but he's made of earwax","a cockroach riding a skateboard",
-    "a Pokémon called Stinkasaur","a cat that barfed on the homework",
-    "a goldfish that burps bubbles of stink","the boogeyman but he's made of actual boogers"
-  ]
-};
-
 const CATS = ['persons','actions','adjNouns','connectors','creatures'];
 const TYPES = ['display-type','action-type','display-type','action-type','display-type'];
+
+// ═══════════════════════════════════════════
+//  PACKS
+// ═══════════════════════════════════════════
+
+const PACKS = [
+  {
+    id: 'original',
+    name: 'Original Pack',
+    emoji: '🤬',
+    price: 'Free',
+    description: 'The classic gross-out starter pack',
+    tier: 'free',
+    persons: [
+      "Your mom","Your dad","Your best friend","Your teacher",
+      "Your cat","Your dog","The person you will marry",
+      "Your evil twin","Your imaginary friend","Your PE teacher",
+      "The kid next door","Your grandma","Your babysitter",
+      "The school bully","Your future self","Your little sister",
+      "Your big brother","Santa Claus","Your uncle",
+      "Your crush","Your goldfish","Your hamster",
+      "Your pet rock","Your annoying little cousin",
+      "The class guinea pig","Whoever farted just now",
+      "The kid who picks their nose in class",
+      "The kid who always tells on you","The lunch lady",
+      "The substitute teacher","The kid who eats glue",
+      "The kid who smells like cheese","Your mom's belly button",
+      "The boy who wet the bed at camp","Your dad on the toilet",
+      "The girl who burped the alphabet","The kid who licks windows",
+      "Your brother's sweaty friend","The teacher who spits when they talk",
+      "The kid who always has a crusty nose","Your grandma after beans",
+      "The boy who farts during the school assembly","Your uncle in his Speedos",
+      "The kid who sniffs markers","Your dad in the bath",
+      "The boy who ate a worm for a dollar","The kid with the stinky lunchbox",
+      "Your mom's toenails","The class nose-picker champion",
+      "The kid who talks with food in their mouth","Your hairy uncle Dave",
+      "The kid who peed in the pool","Your mom's bad cooking",
+      "The boy who got his tongue stuck to a pole","Your dad's back hair",
+      "The girl who can burp on command","The kid caught eating pet food",
+      "Your grandma's false teeth","The kid who brought a dead frog to school",
+      "Your brother after taco night","The boy who sneezed on the birthday cake",
+      "The kid who sits in puddles","Your mom's mustache",
+      "The boy who still picks his nose","The kid who smells their fingers",
+      "The girl who put gum in your hair","Your dad's sweaty feet",
+      "The kid who drinks bathwater","The kid who wiped a booger on you",
+      "The boy whose sneakers stink up the whole room",
+      "The girl who can do armpit farts with both arms",
+      "The kid who always has food on their face",
+      "Your brother when he hasn't showered",
+      "The kid who talks to their belly button",
+      "The boy who wore the same socks for a week",
+      "The kid who picks scabs and eats them",
+      "Your sister's smelly hamster",
+      "The kid who got their finger stuck up their nose",
+      "The boy who sneezed and it went everywhere",
+      "The kid who always forgets to flush",
+      "Your grandma when she takes her teeth out",
+      "The kid who accidentally drank fish tank water",
+      "The kid who sneezed into the birthday cake",
+      "Your dad after an all-you-can-eat buffet",
+      "The boy who stuck a French fry up his nose",
+      "The kid whose burps smell like rotten eggs",
+      "The girl who can make fart sounds with her neck",
+      "Your brother after eating 47 chicken nuggets",
+      "The kid who found a toenail in the mac and cheese",
+      "The boy who licked the school bus window",
+      "The kid who peed their pants from laughing too hard",
+      "Your dog after rolling in something dead",
+      "The kid who barfed on the roller coaster",
+      "The boy who ate a crayon on a dare",
+      "The kid whose socks could knock out a skunk",
+      "Your uncle who falls asleep and drools at Thanksgiving",
+      "The kid who sneezed and a noodle came out",
+      "The boy who scratched his butt then touched the pizza",
+      "The kid who got bubblegum stuck in their eyebrow",
+      "The girl who can queef the alphabet",
+      "The kid who brought a dead bug collection to show and tell",
+      "Your mom's earwax",
+      "The kid who picks their toenails at the lunch table"
+    ],
+    actions: [
+      "smells like","looks like","dances like",
+      "is best friends forever with","is secretly in love with",
+      "sings like","runs like","eats like",
+      "talks like","fights like","thinks they are",
+      "once kissed","dreams about","snores like",
+      "is as clever as","is as dumb as","is jealous of",
+      "takes selfies with","waddles like","hides from",
+      "is afraid of","burps like","does an impression of",
+      "enters talent shows dressed as","shares a toothbrush with",
+      "builds sandcastles shaped like","won a staring contest against",
+      "has a secret handshake with",
+      "did a massive burp in front of","picked their nose and wiped it on",
+      "did a fart that smelled like","got their head stuck in a toilet with",
+      "had a booger fight with","threw up on the shoes of",
+      "accidentally spat on","wet themselves laughing at",
+      "got caught picking a wedgie by","fell face-first into the lunch of",
+      "let out a silent but deadly one near","tripped and landed on",
+      "sneezed spaghetti at","got pantsed in front of",
+      "had a snot bubble in front of","did an armpit fart solo for",
+      "let a fart slip during a hug with","ate something off the floor in front of",
+      "wiped a booger under the desk of","drooled in their sleep on",
+      "did a spit take all over","got explosive diarrhea in front of",
+      "made a butt trumpet noise at","scratched their butt then high-fived",
+      "sniffed their own armpit in front of","blew a snot rocket at",
+      "sharted during a piggyback with","burped the national anthem for",
+      "licked the window next to","left a skidmark on the chair of",
+      "did a running belly flop onto","accidentally drooled on",
+      "clogged the toilet right before","made an eye-watering stink next to",
+      "did a Dutch oven on","ate a worm sandwich in front of",
+      "stuck a booger on the back of","did a belly slide through mud towards",
+      "let rip during silence with","compared toe jam with",
+      "played pull-my-finger with","did a spit bubble contest with",
+      "drank puddle water to impress","made armpit fart music for",
+      "did the loudest burp ever heard by","stuck their finger up their nose at",
+      "smelled their own shoe and offered it to",
+      "wore the same underwear for a week to annoy",
+      "did a fake sneeze with real spit on",
+      "left a stink so bad it cleared a room with",
+      "tried to lick their own elbow in front of",
+      "made a fart noise with their hands at",
+      "got snot on the sleeve of","took a pee behind a bush with",
+      "got chewing gum stuck in the hair of",
+      "sat on a jelly sandwich in front of",
+      "dribbled juice down their chin at",
+      "got a wart from sharing shoes with",
+      "did a sneeze-fart combo in front of",
+      "dropped their shorts by accident near",
+      "got booger on the homework of",
+      "made a barf noise that actually made someone puke near",
+      "swallowed a fly while talking to",
+      "got their tongue stuck to a popsicle in front of",
+      "did a triple-decker burp-fart-hiccup in front of",
+      "wiped their nose on the shirt of","projectile-sneezed on the lunch of",
+      "picked a scab and flicked it at","let out a fart so long it had chapters near",
+      "did a spit take of chocolate milk on","belly-flopped into a mud puddle next to",
+      "gagged on their own burp in front of","dripped sweat into the drink of",
+      "got their hand stuck in the toilet trying to impress",
+      "left a butt print on the chair of","farted into a megaphone aimed at",
+      "sneezed out a chunk of lunch on","made a puke face so realistic it scared",
+      "blew a snot bubble the size of a baseball at",
+      "left a trail of crumbs and boogers behind them near",
+      "did a handstand and their shoe fell in the face of",
+      "ate a bug to gross out","had a booger hanging from their nose all day near",
+      "did a cannonball into a puddle and splashed"
+    ],
+    adjNouns: [
+      "a moldy cheese","a giant dung beetle","a scabby crab",
+      "a soggy cracker","a hairy armpit","a flatulent hippo",
+      "a sunburnt walrus","a deflated balloon",
+      "a sweaty gym sock","a confused penguin",
+      "a three-legged donkey","a broken toilet seat",
+      "a moldy sandwich","a bald hedgehog",
+      "an overcooked noodle","a burnt sausage",
+      "a grumpy tortoise","a cross-eyed parrot",
+      "a melted ice cream","a crusty pie",
+      "a constipated bulldog","a deep-fried shoe",
+      "a paranoid squirrel","a haunted toilet",
+      "a fossilized chicken nugget","a half-eaten corndog",
+      "a vengeful garden gnome",
+      "a giant booger","a toilet that won't flush",
+      "a wet fart in an elevator","a diaper full of surprises",
+      "a pimple on a butt","a dog's chew toy",
+      "a puddle of barf","a furry belly button",
+      "a crusty booger collection","a pair of skidmarked underwear",
+      "a burp that tastes like eggs","a blocked toilet",
+      "a bucket of snot","a sweaty armpit sandwich",
+      "a toenail clipping collection","a blob of earwax",
+      "a fart trapped in a jar","a toilet brush that's seen things",
+      "a nose hair the length of a ruler","a week-old belly button fluff ball",
+      "a snotty tissue collection","a dog fart in a small car",
+      "a pair of underwear worn three days straight","a burp that could peel wallpaper",
+      "a wart the size of a quarter","an inside-out belly button",
+      "a poo that won't flush","a sweaty cheese sandwich",
+      "a booger wall behind someone's bed","a bath full of baked beans",
+      "a Band-Aid found in a swimming pool","a warm toilet seat in a public restroom",
+      "a mystery stain on a bus seat","a hairball coughed up by a cat",
+      "a fart that set off a smoke alarm","a zit that popped during class",
+      "a booger the size of a grape","a toilet that overflowed at a party",
+      "a belly button full of lint and cheese","a burp that lasted 12 seconds",
+      "a pair of underwear found on the playground","a sneeze that hit three people",
+      "a blister full of goo","a toenail that fell off in your soup",
+      "a slug found in someone's salad",
+      "a ball of chewed-up gum from under a desk","a nosebleed during a school photo",
+      "a puddle of drool on a pillow","a wart shaped like a butt",
+      "a sick bag from a rollercoaster",
+      "a fart so loud the dog barked","a banana skin left in a bag for a month",
+      "a scab shaped like a country","a caterpillar found in your sandwich",
+      "a sweaty headband full of dandruff","a chewed pen that leaked in someone's mouth",
+      "a sock so stiff it stands up on its own","a burp that smelled like a garbage truck",
+      "a nostril full of green goo","a puddle of mystery liquid",
+      "a turd that looked like a celebrity","a lunchbox that grew its own ecosystem",
+      "a sneeze string that wouldn't break","a booger that bounced when it hit the floor",
+      "a fart so bad the plants died","a pair of goggles full of someone else's sweat",
+      "a toilet plunger with a mysterious stain","a loogie stuck to a window",
+      "a booger rolled into a perfect ball","a fart trapped in a sleeping bag",
+      "a belch that rattled the windows","a puddle of drool the size of a lake",
+      "a piece of gum chewed by six different people","a skidmark on a trampoline",
+      "a diaper that exploded at a birthday party","a chunk of earwax on a Q-tip",
+      "a fly that landed on every piece of food","a nose hair that could double as a jump rope",
+      "a pimple with its own zip code","a sneeze that sprayed the entire front row",
+      "a sandwich someone sat on then ate anyway","a toilet seat that was still warm from a stranger",
+      "a burp that tasted like yesterday's dinner","a puddle of barf at the top of a water slide",
+      "a toe cheese collection in a jar","a gym shirt that hasn't been washed since September"
+    ],
+    connectors: [
+      "and lives in a cave with","but is scared of",
+      "and shares a bath with","but blames everything on",
+      "and writes love letters to","but picks fights with",
+      "and swaps clothes with","but has nightmares about",
+      "and starts a band with","but can't stop staring at",
+      "and arm-wrestles","but always loses to",
+      "and builds a fort with","but is haunted by",
+      "and goes camping with","but is allergic to",
+      "but trips over","and shares a bunk bed with",
+      "and entered a three-legged race with",
+      "and got trapped in an elevator with",
+      "but got detention because of",
+      "but ran screaming from",
+      "and had a farting contest with","but got wedgied by",
+      "and had a burping competition with","but got slimed by",
+      "and ate worms for a dare with","but stepped in dog poo because of",
+      "and had a booger-flicking war with","but got their shorts pulled down by",
+      "and played toilet tag with","but got a wet willy from",
+      "and had a food fight with","but sat on a whoopee cushion left by",
+      "and did a stink bomb prank on","but got noogied by",
+      "and compared belly buttons with","but got dunked headfirst by",
+      "and had a turd-poking contest with",
+      "and sniffed each other's feet with","but got a dead leg from",
+      "and competed in a nose-picking race with","but got a purple nurple from",
+      "and played who-can-make-the-grossest-noise with",
+      "but ate a dare bug because of",
+      "and did a synchronized butt-wiggle with",
+      "but got a stinky sock thrown at them by",
+      "and had a spitting distance contest with","but got their face licked by",
+      "and compared armpit smells with","but accidentally peed on the shoes of",
+      "and did a gross-out challenge with",
+      "but got a gross kiss from their grandma because of",
+      "and made fake vomit sounds at","but slipped on a banana peel left by",
+      "and had a who-can-eat-more-beans contest with","but got a swirly from",
+      "and made armpit fart duets with","but got pantsed at field day by",
+      "and did a belly button lint trade with","but got their head flushed by",
+      "and invented a new fart sound with",
+      "but got saran-wrapped to a chair by",
+      "and had a spit bubble blowing contest with",
+      "but got their sandwich sat on by",
+      "and played guess-that-smell with","but got fake-sneezed on by",
+      "and did a worm-eating dare with",
+      "but got their face drawn on at a sleepover by",
+      "and rated each other's burps with",
+      "but got a wet sponge down the back from",
+      "and measured each other's boogers against",
+      "but got toothpasted in their sleep by",
+      "and had a race to see who could make the worst smell with",
+      "but got their shoe hidden and filled with jelly by",
+      "and had a contest to see who has the hairiest legs with",
+      "but got a snake bite from",
+      "and stuck their head in a trash can to impress",
+      "but got a face full of silly string from",
+      "and did the worm across the playground for",
+      "but got their lunch stolen and licked by",
+      "and had a competition to make the grossest face with",
+      "but got their drink secretly swapped for vinegar by",
+      "and played truth or dare and had to sniff the shoe of",
+      "but got a booger wiped on their shoulder by",
+      "and tried to outfart","but got their eyebrows drawn on by",
+      "and had a bellyflop competition with",
+      "but got their hand put in warm water at a sleepover by",
+      "and had a who-can-make-the-grossest-armpit-noise contest with",
+      "but got a wet booger flicked at them by",
+      "and did a synchronized belly jiggle with",
+      "but got their face pushed into a cake by",
+      "and had a competition to see who could eat the most hot dogs with",
+      "but got a spit wad launched at them by",
+      "and played guess-what-I-ate-from-my-burp with",
+      "but got their underwear frozen at a sleepover by",
+      "and had a staring contest until someone farted with",
+      "but got a fake spider put in their lunch by",
+      "and competed in a who-has-the-smelliest-feet contest with",
+      "but got tickled until they snorted milk out their nose by",
+      "and made a booger sculpture to give to",
+      "but got a wedgie so bad it ripped their underwear from",
+      "and had a biggest-burp-after-soda challenge with",
+      "but accidentally sneezed mac and cheese onto",
+      "and played the floor-is-lava-but-the-lava-is-barf with",
+      "but got their hair filled with slime by",
+      "and did a butt-bump so hard they both fell over with",
+      "but got an ice cube dropped down their back by"
+    ],
+    creatures: [
+      "badgers","Gremlins","Mickey Mouse",
+      "Bigfoot","the Loch Ness Monster",
+      "a very angry goose","Darth Vader","SpongeBob",
+      "a pack of wild hamsters","Shrek","a confused llama",
+      "Batman","a swarm of bees","the Tooth Fairy",
+      "King Kong","Godzilla","Captain Hook",
+      "a troupe of clowns","a ninja turtle","Dracula",
+      "the Easter Bunny","a yeti","Scooby-Doo",
+      "Peppa Pig","Pikachu","the Grinch",
+      "a horde of angry chihuahuas",
+      "a butt-scratching monkey","Skibidi Toilet",
+      "a feral Elf on the Shelf","a farting unicorn",
+      "the Annoying Orange","Minecraft Steve",
+      "a burping dragon","Crazy Frog",
+      "a poop emoji come to life","Sonic the Hedgehog",
+      "a zombie PE teacher","a dabbing skeleton",
+      "MrBeast's cameraman","Roblox noobs",
+      "a T-Rex with tiny arms","Wednesday Addams",
+      "a booger-eating troll","a talking toilet",
+      "a vomiting volcano","a diaper-wearing dinosaur",
+      "a burping baby Yoda","a cockroach in a top hat",
+      "the monster under your bed",
+      "a feral toddler on sugar","a seagull that stole your fries",
+      "a sneezing dragon","the Fortnite default skin",
+      "a twerking snowman","a pug with gas",
+      "Shrek's earwax candle","a dribbling zombie",
+      "Hagrid's belly button lint","the fly buzzing around a dog turd",
+      "a toilet ghost","Donkey from Shrek after Taco Bell",
+      "a diaper-wearing goblin","Mario after eating bad mushrooms",
+      "a Minion with diarrhea","Elsa but she only freezes toilets",
+      "a booger-flicking leprechaun",
+      "Thanos but he snaps and everyone farts",
+      "Pikachu with a runny nose","a chicken nugget that came alive",
+      "a zombie hamster","SpongeBob's stinky boots",
+      "a butt-wiggling caterpillar","the world's gassiest unicorn",
+      "Baby Shark after too many beans","Patrick Star's belly button",
+      "a slug in a top hat","Olaf if he was made of snot",
+      "a Roblox character that glitched into a toilet",
+      "Bowser with a blocked nose","a snot-dripping snowman",
+      "a Creeper that farts instead of exploding",
+      "an Among Us imposter hiding in a toilet",
+      "a Piglin that rolled in mud","Waluigi in his underwear",
+      "a Pokémon that only knows the move Stink Bomb",
+      "a skeleton that rattles when it farts",
+      "Kirby after eating a whole onion",
+      "a zombie chicken","Luigi's sweaty hat",
+      "a Minion that fell in a porta-potty",
+      "a gummy bear that melted in someone's pocket",
+      "the world's largest dung beetle",
+      "a hamster on a sugar rush",
+      "a seagull covered in ketchup",
+      "Yoshi after sitting on a whoopee cushion",
+      "a llama that spits boogers",
+      "a goblin that picks its nose and eats it","Donkey Kong's sweaty armpits",
+      "a raccoon that lives in a dumpster","a Pikachu that shocks the toilet when it sits down",
+      "a T-Rex trying to wipe its own butt","Shrek's belly button cheese",
+      "a troll that lives under a porta-potty","a burping parrot",
+      "a snail leaving a trail of boogers","Mario after eating too many mushroom burritos",
+      "a frog that burps flies back up","a dragon with terrible morning breath",
+      "a zombie that fell apart in the ball pit","Baby Yoda after a diaper blowout",
+      "a Fortnite player who hasn't showered in a week","a slime monster from the school cafeteria",
+      "Groot but he's made of earwax","a cockroach riding a skateboard",
+      "a Pokémon called Stinkasaur","a cat that barfed on the homework",
+      "a goldfish that burps bubbles of stink","the boogeyman but he's made of actual boogers"
+    ]
+  },
+
+  // ── PLACEHOLDER PACKS (content filled by agents) ──
+  {
+    id: 'cafeteria-chaos',
+    name: 'Cafeteria Chaos',
+    emoji: '🍕',
+    price: '$0.99',
+    description: 'Lunch line laughs and food fight fails',
+    tier: 'kids',
+    persons: [
+      "The lunch lady with hairy arms",
+      "The kid who trades everything for pudding",
+      "The janitor who mops up barf",
+      "The kid who eats glue AND ketchup",
+      "The principal who steals your fries",
+      "The kid who microwaves fish sticks",
+      "The cafeteria monitor who yells too much",
+      "The kid who sneezes into the soup",
+      "The substitute lunch lady",
+      "The kid who licks the tray",
+      "The kid who puts mayo on everything",
+      "The hall monitor who guards the chocolate milk",
+      "The teacher who eats tuna in class",
+      "The kid who double-dips every chip",
+      "The kid who drinks ranch dressing",
+      "The mystery meat chef",
+      "The kid who picks the cheese off pizza",
+      "The kid who burps the alphabet at lunch",
+      "The cafeteria rat nobody talks about",
+      "The kid who sits alone with 12 milk cartons",
+      "The lunch line cutter",
+      "The kid who smuggles hot sauce from home",
+      "The vending machine thief",
+      "The kid who eats dessert first every day",
+      "The kid who found a hair in their sloppy joe",
+      "The kid who makes food sculptures",
+      "The lunch tray dropper",
+      "The kid who traded their soul for a cookie"
+    ],
+    actions: [
+      "barfed spaghetti on",
+      "spilled mystery gravy all over",
+      "threw mashed potatoes at",
+      "sneezed mac and cheese onto",
+      "sat on a plate of",
+      "stepped barefoot in",
+      "accidentally drank a cup of",
+      "got food-poisoned by",
+      "slipped on a puddle of",
+      "burped up a cloud of",
+      "drooled into a bowl of",
+      "farted so hard it ruined",
+      "did a belly flop into a vat of",
+      "got their head stuck in a bucket of",
+      "gargled and spit out",
+      "was caught swimming in",
+      "took a bath in",
+      "tried to juggle three plates of",
+      "stuffed their backpack with",
+      "used their shirt as a napkin for",
+      "ate a week-old plate of",
+      "slurped up a gallon of",
+      "got their fingers glued together by",
+      "was buried alive under",
+      "blew a snot bubble into",
+      "cried tears that smelled like",
+      "left a trail of",
+      "face-planted directly into"
+    ],
+    adjNouns: [
+      "chunky expired milk",
+      "moldy tater tots",
+      "lukewarm fish stick juice",
+      "green mystery meat",
+      "crusty ketchup scabs",
+      "soggy cafeteria nachos",
+      "warm mayonnaise pudding",
+      "hairy meatball surprise",
+      "booger-colored jello",
+      "sweaty cheese slices",
+      "three-week-old pizza grease",
+      "mushy brown banana goop",
+      "curdled chocolate milk",
+      "slimy tuna casserole",
+      "rancid ranch dressing",
+      "gummy leftover gravy",
+      "congealed sloppy joe filling",
+      "the gunk under the hot dog roller",
+      "wet bread crumb sludge",
+      "burnt chicken nugget dust",
+      "room-temperature egg salad",
+      "a forgotten lunch from last year",
+      "pickled gym sock soup",
+      "melted cheese that never solidified",
+      "mystery sauce from the back of the fridge",
+      "a smoothie made of leftovers",
+      "deep-fried booger balls",
+      "the brown stuff on the ceiling"
+    ],
+    connectors: [
+      "and then got pelted with meatballs by",
+      "and then started a food fight with",
+      "but slipped on banana peels thrown by",
+      "and then got a face full of pudding from",
+      "but got detention because of",
+      "and accidentally splashed gravy on",
+      "then blamed everything on",
+      "and got chased through the lunch line by",
+      "but was saved by the power of",
+      "then challenged to a burp-off by",
+      "and got dunked in the soup pot by",
+      "but cried like a baby in front of",
+      "and then had to clean the whole kitchen with",
+      "but farted so loud it summoned",
+      "and got served extra helpings by",
+      "then tried to hide inside the fridge from",
+      "and was mistaken for lunch meat by",
+      "but was out-grossed by",
+      "and then got wedgied with a dish towel by",
+      "then had to wear spaghetti as a wig because of",
+      "but was rescued from the trash can by",
+      "and then high-fived with greasy hands",
+      "and was forced to eat seconds by",
+      "then got a standing ovation from",
+      "and was crowned Barf King by",
+      "but tripped into the arms of",
+      "and then got roasted worse than the turkey by",
+      "and was dragged to the nurse by"
+    ],
+    creatures: [
+      "the Meatloaf Monster",
+      "a sentient blob of cafeteria gravy",
+      "the Booger Burger Beast",
+      "a giant cockroach in a hairnet",
+      "the Ghost of Expired Pudding",
+      "a tater tot golem",
+      "the Sloppy Joe Swamp Thing",
+      "a pizza rat the size of a dog",
+      "the Ketchup Kraken",
+      "a living pile of mystery meat",
+      "the Vengeful Lunch Lady from 1987",
+      "SpongeBob covered in real sponge mold",
+      "a mac-and-cheese zombie",
+      "the Chocolate Milk Phantom",
+      "a chicken nugget that grew legs",
+      "the Nacho Cheese Goblin",
+      "a mutant hot dog with teeth",
+      "the Jello Cube of Doom",
+      "a french fry vampire",
+      "the Grilled Cheese Gremlin",
+      "a milkshake werewolf",
+      "the Cafeteria Ceiling Drip Monster",
+      "a broccoli troll nobody ordered",
+      "the Garbage Disposal Dragon",
+      "a deep-fried nightmare creature",
+      "the Lunch Tray Poltergeist",
+      "a burrito bigger than a kindergartener",
+      "the Almighty Fridge Fungus"
+    ]
+  },
+  {
+    id: 'toilet-terror',
+    name: 'Toilet Terror',
+    emoji: '🚽',
+    price: '$0.99',
+    description: 'Flush-worthy fails and bathroom blunders',
+    tier: 'kids',
+    persons: [
+      "The kid who clogs every toilet",
+      "The kid who uses the whole roll every time",
+      "The janitor with the legendary plunger",
+      "The kid who never flushes",
+      "The kid who reads comics on the toilet for an hour",
+      "The kid who sings in the bathroom",
+      "The kid who peeks under the stall",
+      "The kid who takes their shoes off in there",
+      "The bathroom graffiti artist",
+      "The kid whose farts echo down the hallway",
+      "The kid who brings snacks into the bathroom",
+      "The teacher who hogs the staff restroom",
+      "The kid who narrates everything they do in there",
+      "The stall door kicker",
+      "The kid who uses half a bottle of soap",
+      "The kid who never washes their hands",
+      "The phantom toilet paperer",
+      "The kid who pretends to be sick to use the bathroom",
+      "The kid who floods the sink every time",
+      "The kid who makes sound effects",
+      "The kid who takes the hall pass and disappears for 30 minutes",
+      "The wet floor bandit",
+      "The kid who high-fives after using the bathroom",
+      "The automatic flush victim",
+      "The kid who talks to you through the stall wall",
+      "The kid who runs out screaming every time",
+      "The kid who locks every stall from inside and crawls out",
+      "The bathroom DJ who beatboxes in the echo"
+    ],
+    actions: [
+      "clogged the toilet with the force of",
+      "unleashed a fart that smelled like",
+      "slipped on a wet floor covered in",
+      "accidentally sat on",
+      "flushed their homework along with",
+      "created a swirly tornado of",
+      "splashed toilet water mixed with",
+      "left a skid mark the length of",
+      "tried to plunge but launched",
+      "fell off the toilet and landed in",
+      "sneezed while pooping and sprayed",
+      "discovered something alive swimming in",
+      "blocked the drain with a ball of",
+      "accidentally used their shirt instead of",
+      "made the whole hallway reek of",
+      "dropped their phone into a bowl of",
+      "overflowed the sink with a fountain of",
+      "stepped barefoot in a puddle of",
+      "got their hand stuck reaching for",
+      "did a cannonball into a tub of",
+      "wiped their face thinking it was a towel but it was",
+      "dripped a trail of",
+      "blasted the walls with",
+      "got pantsed in front of a pile of",
+      "generated enough gas to inflate",
+      "power-flushed a geyser of",
+      "had a staring contest with"
+    ],
+    adjNouns: [
+      "year-old toilet sludge",
+      "warm diarrhea soup",
+      "floating mystery chunks",
+      "crusty pee stains",
+      "an unflushed mega-log",
+      "soggy toilet paper wads",
+      "brown splashback mist",
+      "bubbly plunger juice",
+      "the gunk behind the toilet",
+      "a hairball from the drain",
+      "green urinal cake slime",
+      "wet floor puddle of unknown origin",
+      "three-day-old unflushed evidence",
+      "moldy shower curtain drippings",
+      "the thing growing in the corner",
+      "a clogged drain smoothie",
+      "recycled toilet water spray",
+      "fossilized boogers from the stall wall",
+      "sweaty plunger handle residue",
+      "mysterious bathroom ceiling drip",
+      "the world's longest skid mark",
+      "a blob of wet hand soap mixed with hair",
+      "sticky bathroom floor goo",
+      "overflowed mop bucket juice",
+      "a bird's nest of used dental floss",
+      "fart cloud residue",
+      "ancient bathroom graffiti grime",
+      "a swamp of wet paper towels"
+    ],
+    connectors: [
+      "and then got double-flushed by",
+      "and stunk so bad it attracted",
+      "then slipped and crashed into",
+      "but was out-farted by",
+      "and got plungered on the head by",
+      "then got blamed for the smell by",
+      "and made the janitor cry in front of",
+      "and caused a bathroom evacuation led by",
+      "but was rescued from the stall by",
+      "then got a swirly courtesy of",
+      "and traumatized the next person in line who was",
+      "but tried to frame it on",
+      "and left the scene before being caught by",
+      "then got locked in the bathroom with",
+      "and was crowned Stink King by",
+      "but somehow impressed",
+      "and got a round of applause from",
+      "then had to explain everything to",
+      "and was roasted in the group chat by",
+      "but was forgiven because of",
+      "and had to apologize to the toilet in front of",
+      "then used the last square of TP before",
+      "and was banned from the bathroom by",
+      "but got a trophy for grossness from",
+      "and then wrote a bathroom stall poem about",
+      "then pretended nothing happened in front of",
+      "and caused a plumbing bill paid by",
+      "and was investigated by"
+    ],
+    creatures: [
+      "the Toilet Kraken",
+      "a sentient turd with googly eyes",
+      "the Plunger Monster",
+      "a fart ghost that haunts stall three",
+      "the Sewer Gator of Legend",
+      "a toilet paper mummy",
+      "the Urinal Cake Goblin",
+      "a cockroach the size of a shoe",
+      "the Phantom Flusher",
+      "a poop emoji come to life",
+      "the Drain Hair Beast",
+      "a bubble bath demon",
+      "the Wet Floor Sign that walks at night",
+      "a soap dispenser that bites",
+      "the Skid Mark Specter",
+      "a mutant goldfish that survived the flush",
+      "the Overflowing Toilet Titan",
+      "a rubber duck possessed by evil",
+      "the Stall Door Slammer",
+      "a mop bucket troll",
+      "the Brown Lagoon Creature",
+      "a plumber who has seen too much",
+      "the Mysterious Bathroom Fog Entity",
+      "a colony of drain flies with a leader",
+      "the Clogged Pipe Dragon",
+      "a toilet seat that snaps shut on its own",
+      "the Legendary Floater That Won't Flush",
+      "the Hand Dryer Banshee"
+    ]
+  },
+  {
+    id: 'holiday-horrors',
+    name: 'Holiday Horrors',
+    emoji: '🎃',
+    price: '$0.99',
+    description: 'Festive fails from every holiday gone wrong',
+    tier: 'kids',
+    persons: [
+      "Sweaty Mall Santa",
+      "The Easter Bunny with a bad attitude",
+      "The kid who eats all the Halloween candy in one night",
+      "The birthday party clown nobody hired",
+      "The summer camp counselor who can't swim",
+      "The Tooth Fairy with butterfingers",
+      "The kid who cries at every birthday party",
+      "Cupid with terrible aim",
+      "The Grinch's stinky cousin",
+      "The kid who ruins the pinata for everyone",
+      "The elf on the shelf who fell in the toilet",
+      "The Thanksgiving turkey that fought back",
+      "The kid who re-gifts everything",
+      "A leprechaun with anger issues",
+      "The haunted house actor who smells like feet",
+      "The kid who blows out YOUR birthday candles",
+      "The camp kid who never showers",
+      "Rudolph after eating bad hay",
+      "The New Year's baby in a dirty diaper",
+      "The kid who puts raisins in the trick-or-treat bowl",
+      "The Valentine who picks their nose",
+      "Jack Frost after a burrito",
+      "The kid who eats the gingerbread house",
+      "The birthday magician whose rabbit escaped",
+      "Frosty the Snowman on a hot day",
+      "The fireworks kid who singed their eyebrows off",
+      "The Easter egg that was never found",
+      "The kid who shows up to the wrong party"
+    ],
+    actions: [
+      "barfed candy corn all over",
+      "got tangled in Christmas lights and fell on",
+      "farted in Santa's lap and ruined",
+      "egg-hunted face first into",
+      "got stuck in a chimney full of",
+      "bobbed for apples and came up with",
+      "tripped over a menorah and landed in",
+      "threw up birthday cake onto",
+      "sat on the campfire and launched",
+      "sneezed glitter and boogers all over",
+      "unwrapped a present full of",
+      "slipped on Halloween slime and crashed into",
+      "popped a confetti cannon loaded with",
+      "got pantsed by a ghost made of",
+      "trick-or-treated and received a bag of",
+      "cannonballed into the camp lake and splashed up",
+      "got their tongue stuck to a frozen pole of",
+      "carved a pumpkin and found it full of",
+      "pulled a Christmas cracker that exploded with",
+      "opened a birthday card that sprayed",
+      "roasted marshmallows over a fire fueled by",
+      "went bobbing for apples but found only",
+      "dove headfirst into a pile of",
+      "tried to stuff a stocking but unleashed",
+      "did the limbo under a stream of",
+      "face-painted themselves with",
+      "blew out candles and spit all over",
+      "wore a costume made entirely of"
+    ],
+    adjNouns: [
+      "melted chocolate bunny guts",
+      "eggnog that expired in January",
+      "candy cane slime",
+      "rotten pumpkin goop",
+      "sweaty Santa beard lint",
+      "crusty birthday cake frosting",
+      "warm trick-or-treat sweat",
+      "moldy Easter egg filling",
+      "camp lake bottom sludge",
+      "a piñata stuffed with boogers",
+      "turkey gravy that gained sentience",
+      "mushy candy corn paste",
+      "the juice from a two-month-old jack-o-lantern",
+      "glitter mixed with ear wax",
+      "fruitcake from 1997",
+      "sunscreen and bug spray smoothie",
+      "reindeer drool pudding",
+      "Valentine's Day chalk heart dust",
+      "a gingerbread house held together by spit",
+      "leftover Halloween makeup mixed with snot",
+      "sparkler ash and belly button lint",
+      "hot dog water from the Fourth of July",
+      "stale birthday party popcorn grease",
+      "decomposing Easter basket grass",
+      "a snowman's brown carrot nose",
+      "summer camp mystery bug juice",
+      "wrapping paper cuts filled with sweat",
+      "a stocking full of toenail clippings"
+    ],
+    connectors: [
+      "and then got pantsed in front of",
+      "and got coal-ed in the face by",
+      "but was out-spooked by",
+      "then tripped into the birthday cake because of",
+      "and got TP'd by",
+      "and was haunted for the rest of the year by",
+      "then got dunked in the apple barrel by",
+      "and accidentally summoned",
+      "but was saved by the lamest superhero ever,",
+      "and made every kid cry including",
+      "then got chased around the campfire by",
+      "and ruined the class party in front of",
+      "but got upstaged at the talent show by",
+      "then was cursed with bad luck by",
+      "and was put on the permanent naughty list by",
+      "and had their candy stolen by",
+      "then got wedgied with a Christmas stocking by",
+      "but got pranked ten times worse by",
+      "and was mistaken for a decoration by",
+      "then got roasted harder than chestnuts by",
+      "and was sent to the principal's office with",
+      "but was challenged to a candy-eating contest by",
+      "and got serenaded with a terrible carol by",
+      "then swapped costumes against their will with",
+      "and woke up the next morning next to",
+      "and was forced to do the chicken dance by",
+      "then had to share a sleeping bag with",
+      "and got a participation trophy from"
+    ],
+    creatures: [
+      "Zombie Santa Claus",
+      "the Easter Bunny's evil twin",
+      "a jack-o-lantern that bites",
+      "the Birthday Cake Blob",
+      "a gingerbread man seeking revenge",
+      "Frosty the Gross-man",
+      "the Turkey That Wouldn't Die",
+      "a candy corn vampire",
+      "the Ghost of Birthdays Past",
+      "a reindeer with explosive diarrhea",
+      "Krampus Jr.",
+      "a haunted piñata",
+      "the Summer Camp Swamp Monster",
+      "a giant maggot in a Santa hat",
+      "the Valentine's Day Stink Bug",
+      "an elf who quit and went feral",
+      "the Pumpkin Spice Poltergeist",
+      "a mummy wrapped in wrapping paper",
+      "the Abominable Snowman's gross little brother",
+      "a leprechaun riding a toilet",
+      "the Easter Egg That Hatched Something Terrible",
+      "a birthday party clown from the sewer",
+      "the Fireworks Fart Phantom",
+      "Cupid with a booger arrow",
+      "a turkey leg that grew arms and legs",
+      "the Haunted Bounce House Beast",
+      "a possessed gummy bear the size of a toddler",
+      "the Nutcracker That Cracks Back"
+    ]
+  },
+  {
+    id: 'office-nightmare',
+    name: 'Office Nightmare',
+    emoji: '💼',
+    price: '$1.99',
+    description: 'Corporate chaos and cubicle carnage',
+    tier: 'adult',
+    persons: [
+      "Your boss",
+      "The IT guy",
+      "HR",
+      "The unpaid intern",
+      "The CEO",
+      "Your cubicle neighbor",
+      "The office snitch",
+      "The guy who microwaves fish",
+      "The meeting scheduler",
+      "Your skip-level manager",
+      "The office party planner",
+      "The guy who says \"per my last email\"",
+      "The Slack over-reactor",
+      "Your \"work wife\"",
+      "The bathroom small-talker",
+      "The guy who CCs everyone",
+      "The motivational poster buyer",
+      "The open-plan office advocate",
+      "The standing desk evangelist",
+      "Your direct report",
+      "The parking spot stealer",
+      "The thermostat tyrant",
+      "The reply-all offender",
+      "The kitchen sink leaver",
+      "The \"circle back\" guy",
+      "The team-building organizer",
+      "The Monday morning storyteller",
+      "The guy still on mute"
+    ],
+    actions: [
+      "replied-all to the entire company with",
+      "stole your clearly labeled lunch and replaced it with",
+      "scheduled a 4pm Friday meeting about",
+      "passive-aggressively emailed you about",
+      "took credit for your work and blamed you for",
+      "reported you to HR over",
+      "left a sticky note on your monitor about",
+      "CC'd the CEO on a complaint about",
+      "heated up leftover fish that smelled like",
+      "submitted an expense report for",
+      "accidentally screen-shared their browser full of",
+      "spent the entire standup ranting about",
+      "marked your parking spot as reserved for",
+      "Slack-messaged you at 11pm about",
+      "brought a therapy animal to work that resembles",
+      "set the office thermostat to match the temperature of",
+      "left a passive-aggressive sticky note shaped like",
+      "put a \"motivational\" poster up that featured",
+      "volunteered you for a presentation on",
+      "turned the break room into a shrine for",
+      "filed a complaint that your desk smells like",
+      "replaced the good coffee with something tasting like",
+      "auto-declined every meeting except ones about",
+      "asked for a promotion based on their knowledge of",
+      "hosted a mandatory team lunch catered with",
+      "created a Slack channel dedicated to",
+      "claimed they invented the concept of",
+      "accidentally printed 200 copies of"
+    ],
+    adjNouns: [
+      "a stale break-room donut",
+      "a jammed printer from 2003",
+      "a passive-aggressive Post-it note",
+      "a soggy motivational poster",
+      "a conference room with no ventilation",
+      "an expired yogurt from the communal fridge",
+      "a broken office chair with one wheel",
+      "a mysteriously sticky keyboard",
+      "a mandatory fun survey",
+      "a vending machine that only takes exact change",
+      "a performance review written in Comic Sans",
+      "a team-building trust fall gone wrong",
+      "an out-of-order bathroom sign",
+      "a LinkedIn endorsement for \"synergy\"",
+      "a lanyard collection from 2014",
+      "a half-eaten sheet cake from accounting",
+      "a mouse pad with a motivational quote",
+      "a TPS report nobody asked for",
+      "a corporate retreat to a Ramada Inn",
+      "a Keurig that only makes lukewarm sadness",
+      "an all-hands meeting that could've been an email",
+      "a \"casual Friday\" dress code violation",
+      "a forgotten screensaver of a tropical beach",
+      "a budget spreadsheet full of lies",
+      "a suspiciously warm office chair",
+      "a fire drill during lunch",
+      "an HR training video from 1997",
+      "a parking garage that smells like ambition died"
+    ],
+    connectors: [
+      "and then blamed it on the intern like",
+      "which somehow became a fireable offense thanks to",
+      "and got promoted over you just like",
+      "and HR just shrugged and said \"sounds like a you problem\" to",
+      "then put it on the shared calendar for",
+      "and the CEO awarded a bonus to",
+      "but somehow middle management pinned it on",
+      "and IT just responded \"have you tried restarting?\" to",
+      "then wrote a 12-paragraph email defending it to",
+      "and now there's a mandatory training because of",
+      "which led to an emergency all-hands featuring",
+      "and the whole floor pretended not to notice except",
+      "then pivoted the blame onto the shoulders of",
+      "but the real villain in this story is",
+      "and nobody said a word because they feared",
+      "which triggered a company-wide policy named after",
+      "then gaslit the entire department starting with",
+      "and someone anonymously reported it to",
+      "but upper management rewarded it by promoting",
+      "and Facilities had to be called in to deal with",
+      "which showed up in the quarterly review of",
+      "and the Slack thread went nuclear thanks to",
+      "then mysteriously vanished from the org chart like",
+      "and it became an inside joke except for",
+      "but the real damage was done to",
+      "and Legal got involved because of"
+    ],
+    creatures: [
+      "a middle manager who peaked in high school",
+      "a consultant billing $400/hour to state the obvious",
+      "an intern who somehow has a corner office",
+      "a VP of Nothing in Particular",
+      "a reply-all gremlin",
+      "the ghost of layoffs past",
+      "a LinkedIn thought leader with zero thoughts",
+      "a Scrum Master who has never shipped anything",
+      "a recruiter who ghosts after three rounds",
+      "a motivational speaker who cries in the parking lot",
+      "the coworker who always has a \"quick question\"",
+      "an HR rep who definitely has a burn book",
+      "a CEO who read one leadership book",
+      "a Boomer who prints every email",
+      "a tech bro who says \"disrupt\" unironically",
+      "the person who always brings a guitar to the offsite",
+      "an executive who calls weekends \"opportunity windows\"",
+      "a project manager with 47 open tabs and no plan",
+      "the office birthday cake enforcer",
+      "a janitor who has seen too much",
+      "an algorithm that decides who gets fired",
+      "a wellness committee that causes more stress",
+      "the printer that jams only during deadlines",
+      "an AI chatbot they hired to replace you",
+      "a team lead who manages by passive-aggression",
+      "the receptionist who knows all the secrets",
+      "a diversity hire who was actually the most qualified",
+      "a corporate mascot nobody asked for"
+    ]
+  },
+  {
+    id: 'dating-disasters',
+    name: 'Dating Disasters',
+    emoji: '💔',
+    price: '$1.99',
+    description: 'Swipe left on dignity',
+    tier: 'adult',
+    persons: [
+      "Your ex",
+      "Your situationship",
+      "The one that got away",
+      "Your Tinder match",
+      "Your friend's hot sibling",
+      "Your rebound",
+      "The wedding date you brought",
+      "Your high school crush",
+      "Your DM slider",
+      "The catfish",
+      "Your friends-with-benefits",
+      "Your ex's new partner",
+      "Your mom's pick for you",
+      "The one who got \"too busy\"",
+      "Your summer fling",
+      "The one who still owes you $200",
+      "Your coworker crush",
+      "The person who ghosted you",
+      "Your on-again-off-again",
+      "The \"we're just talking\" person",
+      "Your toxic twin flame",
+      "The one who proposed too early",
+      "Your partner's \"just a friend\"",
+      "The one with 47 red flags",
+      "Your couple's therapist",
+      "The wedding DJ who hit on you",
+      "Your blind date",
+      "Your ex's mom who liked you better"
+    ],
+    actions: [
+      "ghosted you mid-date and came back smelling like",
+      "updated their Tinder profile while sitting across from you eating",
+      "cried about their ex who looked like",
+      "showed up in Crocs and a vibe resembling",
+      "brought their mom on the date along with",
+      "talked about crypto for three hours like it was",
+      "asked to split the bill down to the penny including",
+      "showed you their wedding Pinterest board featuring",
+      "said \"I love you\" on the first date right after ordering",
+      "texted \"u up?\" at 3am with a photo of",
+      "unmatched you then showed up at your gym holding",
+      "left you on read for a week then sent",
+      "told all their friends you resemble",
+      "wrote a breakup text that autocorrected to",
+      "proposed at an Applebee's using a ring that looked like",
+      "faked an emergency to leave but forgot their jacket and",
+      "said they were \"not looking for anything serious\" then married",
+      "took you to a drive-thru and ordered only",
+      "introduced you to their parents as",
+      "swiped right on your sibling and sent them",
+      "made a playlist for you that was just",
+      "had a shrine to their ex decorated with",
+      "drunk-dialed you to talk about",
+      "compared your kiss to the texture of",
+      "double-booked dates and tried to merge them into",
+      "said \"we need to talk\" then just showed you",
+      "wrote you a love poem that rhymed your name with",
+      "described their ideal partner as the opposite of"
+    ],
+    adjNouns: [
+      "a Costco engagement ring",
+      "a second-date U-Haul",
+      "a red flag factory",
+      "a profile pic from 2015",
+      "a \"looking for the Jim to my Pam\" bio",
+      "a 3am \"you up?\" text",
+      "an unsolicited voice memo",
+      "a relationship status set to \"it's complicated\"",
+      "a shared Netflix password and nothing else",
+      "a breakup text sent via group chat",
+      "a candlelit dinner at Waffle House",
+      "a love language that's just \"acts of audacity\"",
+      "a talking stage that lasted 11 months",
+      "a roster deeper than an NFL team's",
+      "a \"conscious uncoupling\" that was just regular dumping",
+      "a couples' tattoo of something misspelled",
+      "a Valentine's Day at the gas station",
+      "a wedding speech that was mostly roasting",
+      "an emotional support talking phase",
+      "a \"what are we?\" conversation at IKEA",
+      "a Spotify Blend that was 4% compatible",
+      "a sex playlist that was just one Nickelback album",
+      "a prenup written on a napkin",
+      "a promise ring from a vending machine",
+      "a sext that accidentally went to the family group chat",
+      "a deleted browser history and a guilty conscience",
+      "a joint Facebook account and mutual distrust"
+    ],
+    connectors: [
+      "and then immediately matched with your best friend like",
+      "which is exactly what the astrology app predicted for",
+      "and your therapist just sighed and billed extra for",
+      "then posted about it on their story tagging",
+      "but somehow that was YOUR red flag according to",
+      "and now they're in a throuple with",
+      "then changed their relationship status to spite",
+      "and wrote a Medium article exposing",
+      "but the real heartbreak was suffered by",
+      "which reminded everyone of the time they also ghosted",
+      "then slid into the DMs of",
+      "and the couples therapist took the side of",
+      "then went \"on a journey of self-discovery\" with",
+      "but the talking stage continues to haunt",
+      "and everyone at brunch heard about it from",
+      "which turned into a TikTok that was dueted by",
+      "then love-bombed the absolute daylights out of",
+      "and the astrologer blamed Mercury retrograde and also",
+      "but it turns out they were already texting",
+      "then showed up at your wedding uninvited with",
+      "which led to a restraining order filed by",
+      "and the group chat had opinions, especially",
+      "then trauma-bonded over the experience with",
+      "but somehow they got the dog AND the sympathy of",
+      "and your mother still brings it up in front of",
+      "then weaponized that vulnerability against"
+    ],
+    creatures: [
+      "a serial ghoster with a podcast",
+      "someone whose love language is gaslighting",
+      "a \"nice guy\" with a manifesto",
+      "a person who lists their height as 6'0\" but is clearly 5'7\"",
+      "a situationship that achieved sentience",
+      "an ex who became a life coach",
+      "a pickup artist who peaked in a fedora",
+      "someone whose Bumble bio is just \"ask me\"",
+      "a cryptobro looking for a \"queen to build an empire with\"",
+      "a stage-5 clinger with AirTag technology",
+      "a \"free spirit\" who's just commitment-phobic",
+      "a person who posts thirst traps at funerals",
+      "someone who learned everything about love from TikTok",
+      "a walking red flag dressed as a green one",
+      "a Hinge profile powered entirely by dog pics",
+      "the ex who somehow shows up at every party",
+      "a couple that shares one social media account",
+      "a \"healed\" person who still hate-follows their ex",
+      "a marriage counselor going through their third divorce",
+      "someone who proposes on a jumbotron to a stranger",
+      "a person who unironically says \"all my exes are crazy\"",
+      "a talking stage that became a cold war",
+      "an astrology girl who broke up with you over your moon sign",
+      "a person whose dating profile is a group photo",
+      "a rebound with more emotional range than your ex",
+      "a catfish who was somehow still a downgrade",
+      "a couple influencer whose relationship is a hostage situation"
+    ]
+  },
+  {
+    id: 'adulting-is-hard',
+    name: 'Adulting is Hard',
+    emoji: '😩',
+    price: '$1.99',
+    description: 'Responsibilities, regrets, and retail therapy',
+    tier: 'adult',
+    persons: [
+      "Your landlord",
+      "The DMV clerk",
+      "Your dentist",
+      "Your neighbor",
+      "The HOA president",
+      "Your accountant",
+      "The parking enforcement officer",
+      "Your insurance agent",
+      "The cable company rep",
+      "Your student loan",
+      "The mechanic",
+      "Your doctor's receptionist",
+      "The grocery store self-checkout",
+      "Your utility company",
+      "The airline customer service agent",
+      "Your credit score",
+      "The IRS",
+      "Your check engine light",
+      "The person ahead of you in line",
+      "Your expired registration",
+      "The customer service hold music",
+      "Your property tax assessment",
+      "The IKEA instruction manual",
+      "Your smoke detector at 3am",
+      "The contractor who ghosted mid-renovation",
+      "Your WiFi router",
+      "The telemarketer who calls daily",
+      "Your Costco membership"
+    ],
+    actions: [
+      "forgot to pay the electric bill and ended up with",
+      "burned dinner so badly it set off the neighbor's smoke detector and summoned",
+      "assembled IKEA furniture upside down resulting in",
+      "got audited by the IRS for deducting",
+      "called in sick to work but was spotted at Target buying",
+      "forgot which day was trash day and accumulated",
+      "tried to adult but instead impulse-bought",
+      "missed a dentist appointment and grew something resembling",
+      "got a parking ticket for being 2 minutes late next to",
+      "let the oil change go 10,000 miles past due creating",
+      "accidentally sent a vent text about the landlord TO the landlord describing them as",
+      "fell asleep during a Zoom meeting and woke up screaming about",
+      "ate cereal for dinner for the 12th straight night with",
+      "paid $300 for a plumber who just jiggled the handle like",
+      "spent 4 hours on hold just to be told they needed",
+      "threw away mail that turned out to be a summons for",
+      "Googled their symptoms and diagnosed themselves with",
+      "tried to fix a leaky faucet and flooded the kitchen with",
+      "filed taxes in a panic and accidentally claimed",
+      "left laundry in the washer for 3 days creating",
+      "bought a gym membership and went once to look at",
+      "lost the car in a parking garage for 2 hours alongside",
+      "showed up to jury duty looking like",
+      "refinanced their mortgage based on advice from",
+      "locked themselves out of the house holding only",
+      "maxed out a credit card on",
+      "set up autopay but for the wrong account funding"
+    ],
+    adjNouns: [
+      "an overdue library book from 2009",
+      "a junk drawer that has achieved consciousness",
+      "a Tupperware lid with no matching container",
+      "a car making a noise that costs $2,000",
+      "an \"easy 20-minute recipe\" that took 3 hours",
+      "a fitted sheet folded by a lunatic",
+      "a 401k that's more like a 401-chaos",
+      "a Terms & Conditions nobody has ever read",
+      "a grocery list that just says \"food\"",
+      "an expired coupon and shattered dreams",
+      "a credit card statement that should be classified",
+      "a mystery charge of $47.99",
+      "a participation trophy from 1998",
+      "a sink full of dishes and denial",
+      "a mattress on the floor and a \"minimalist\" excuse",
+      "an air filter that hasn't been changed since the last administration",
+      "a phone charger that only works at one angle",
+      "a pile of laundry that counts as furniture",
+      "a birthday card that's 3 weeks late",
+      "a smoke detector beeping at 3am with no reachable battery",
+      "an IKEA bookshelf held together by hope",
+      "a prescription that costs more than rent",
+      "a \"quick errand\" that took 6 hours",
+      "a tax return filed on April 15th at 11:58pm",
+      "a freezer-burned mystery bag from the ice age",
+      "an Amazon box used as a nightstand",
+      "a check engine light that's been on since 2021"
+    ],
+    connectors: [
+      "and now your credit score is haunted by",
+      "which the HOA sent a formal complaint about to",
+      "and your therapist says it's a coping mechanism shared by",
+      "then the landlord raised the rent on",
+      "and somehow this is a tax liability according to",
+      "which the neighbors reported to the city along with",
+      "and insurance won't cover it because of",
+      "but the real victim here is",
+      "and now there's a lien on everything owned by",
+      "which triggered an existential crisis in",
+      "then a certified letter arrived addressed to",
+      "and the plumber just laughed and charged double for",
+      "but the DMV said it's actually the responsibility of",
+      "and now you owe back-fees that rival the GDP of",
+      "which voided the warranty previously held by",
+      "then somehow became a zoning violation blamed on",
+      "and the automated phone system disconnected",
+      "which showed up as a collections notice for",
+      "and the homeowner's association demanded an apology from",
+      "then it became a noise complaint filed against",
+      "and the accountant just stared in silence at",
+      "but Mercury was in retrograde so it was really the fault of",
+      "which became a safety hazard according to",
+      "and the contractor added another $5,000 because of",
+      "then the whole thing went to small claims court with",
+      "and everyone on Nextdoor had opinions about"
+    ],
+    creatures: [
+      "a landlord who \"fixes\" things with duct tape and prayers",
+      "a neighbor who mows at 6am on Sundays",
+      "a student loan that will outlive you",
+      "a spam caller who knows your name",
+      "a parking meter with a personal vendetta",
+      "a HOA president drunk on power",
+      "a toddler with a permanent marker and no supervision",
+      "a property tax that grows faster than inflation",
+      "a DMV worker who has never smiled",
+      "a doctor who Googles your symptoms in front of you",
+      "a gym membership you can't cancel",
+      "a printer that only works when it feels like it",
+      "a Roomba that spreads the mess further",
+      "an alarm clock with the will to live you lack",
+      "a voicemail from an unknown number",
+      "a contractor who \"knows a guy\"",
+      "an extended car warranty phone scam that achieved sentience",
+      "a couch you bought off Facebook Marketplace",
+      "a jury duty summons that found you across state lines",
+      "a retirement plan that's just a lottery ticket",
+      "a Costco sample addict who calls it lunch",
+      "a Yelp reviewer who gives one star to everything",
+      "a passive-aggressive note-leaving neighbor",
+      "a pot of rice that boiled over and chose violence",
+      "an IKEA allen wrench that bent on the last screw",
+      "a lease renewal with a 40% increase and a smiley face",
+      "a grocery store that rearranged every aisle"
+    ]
+  },
+  {
+    id: 'after-dark',
+    name: 'After Dark',
+    emoji: '🌙',
+    price: '$2.99',
+    description: 'What happens after midnight stays... in this app',
+    tier: 'adult',
+    persons: [
+      "Your walk-of-shame Uber driver",
+      "The bartender who cut you off",
+      "Your ex's hot roommate",
+      "The bouncer who remembers you",
+      "Your \"no strings attached\"",
+      "The DJ who played your breakup song",
+      "Your friend who always dares you",
+      "The stranger who bought you a drink",
+      "Your one-night stand from last Tuesday",
+      "The group chat at 2am",
+      "Your designated driver who left early",
+      "The person in your phone saved as \"DO NOT TEXT\"",
+      "Your ex who's \"changed\"",
+      "The bartender you flirt with for free drinks",
+      "Your wingman who needs a wingman",
+      "The coat-check person who judges you",
+      "Your Uber Pool stranger at 3am",
+      "The bottle service Karen",
+      "Your \"I'm never drinking again\" self",
+      "The couple making out in the corner",
+      "Your sober friend documenting everything",
+      "The bathroom attendant who's seen it all",
+      "The karaoke host you traumatized",
+      "Your gym crush who saw you wasted",
+      "The brunch waiter who knows your hangover",
+      "Your hookup's judgmental pet",
+      "The late-night pizza delivery person"
+    ],
+    actions: [
+      "did the walk of shame past a church group carrying",
+      "sent a 2am text that just said",
+      "woke up with a traffic cone and something resembling",
+      "drunk-ordered $200 worth of",
+      "karaoke'd so badly the DJ unplugged everything except",
+      "flirted using only quotes from",
+      "pocket-dialed their ex during a rant about",
+      "made out with someone who tasted like",
+      "tried to sneak out but tripped over",
+      "took body shots off something that looked like",
+      "blacked out and woke up with a tattoo of",
+      "lost their pants at the bar and found",
+      "cried in the club bathroom about",
+      "ordered bottle service and paid for it with",
+      "started a conga line that ended at",
+      "got banned from karaoke for a performance involving",
+      "tried to sext but accidentally described",
+      "woke up spooning",
+      "dirty-danced with what turned out to be",
+      "left a bar tab open that rivaled the cost of",
+      "asked the DJ to play \"their song\" which was just",
+      "shotgunned a drink then immediately regretted it like",
+      "snuck into VIP using nothing but confidence and",
+      "went home with someone and discovered their apartment was just",
+      "skinny-dipped somewhere that turned out to be",
+      "made a bet they couldn't chug something that tasted like",
+      "gave their number to someone and wrote it on"
+    ],
+    adjNouns: [
+      "a 4am kebab of questionable origin",
+      "a hangover that qualifies as a medical event",
+      "a bar tab that needs a payment plan",
+      "a bathroom selfie with concerning lighting",
+      "a Uber rating of 2.3 stars",
+      "a cocktail that tastes like regret and Febreze",
+      "a dance move that dislocated something",
+      "a hickey in an unexplainable location",
+      "a drunk text preserved in screenshot form",
+      "a lost shoe with a story nobody remembers",
+      "a karaoke rendition that violated the Geneva Convention",
+      "a 3am voice memo of pure chaos",
+      "a mystery bruise with no backstory",
+      "a Venmo charge labeled \"don't ask\"",
+      "a photo that can never reach LinkedIn",
+      "a pickup line that would make a sailor blush",
+      "a shot called \"The Mistake\" that lives up to its name",
+      "a sent text that starts with \"heyyyyy\" and 14 y's",
+      "a strip club receipt in a church bulletin",
+      "a bedhead that suggests a natural disaster occurred",
+      "a late-night DoorDash order with 11 sauces",
+      "a toilet that has seen unspeakable things",
+      "a beer goggle prescription of -7.5",
+      "a condom wrapper used as a bookmark",
+      "an \"I'm five minutes away\" text sent from another zip code",
+      "a walk of shame outfit that screams \"I had plans yesterday\"",
+      "a hangover cure involving raw eggs and prayer"
+    ],
+    connectors: [
+      "and the group chat will never let them forget thanks to",
+      "which was fully documented on someone's Instagram story by",
+      "then the bartender called an intervention for",
+      "and the bouncer now has a photo of them posted next to",
+      "but the real walk of shame belonged to",
+      "and the Uber driver gave them a life lecture inspired by",
+      "then brunch the next day became a roast of",
+      "which somehow ended with a noise complaint filed by",
+      "and the morning-after text was even worse according to",
+      "but at least they didn't end up like",
+      "and the bar named a drink after the incident involving",
+      "then their mother found out because of",
+      "which became the stuff of legend in the friend group of",
+      "and the coat-check still has the evidence belonging to",
+      "then someone posted the video and it was seen by",
+      "and the hangover lasted longer than the relationship of",
+      "but the bathroom attendant showed more kindness than",
+      "and the next morning there was a strongly worded note from",
+      "which led to a lifetime ban co-signed by",
+      "and somebody left a Yelp review about",
+      "then that became the last straw for",
+      "and the pizza delivery person has never recovered unlike",
+      "but karma came back hard the next weekend for",
+      "and the Ring doorbell camera caught everything including",
+      "which ruined trivia night forever for",
+      "and somehow the dog was the only witness who supported"
+    ],
+    creatures: [
+      "a bartender who's writing a memoir about you specifically",
+      "a bouncer who communicates only through head shakes",
+      "a DJ who plays \"Closing Time\" with malicious intent",
+      "a 3am street food vendor who has seen civilizations fall",
+      "a taxi driver who offers unsolicited life advice",
+      "a club promoter who peaked in 2012",
+      "a bathroom attendant who moonlights as a therapist",
+      "a karaoke machine that begs for mercy",
+      "someone wearing sunglasses indoors at midnight",
+      "a VIP section that's just a rope and a dream",
+      "a neon sign that says \"BAD DECISIONS\" and means it",
+      "a jukebox that only plays breakup anthems",
+      "a drunk person crying into mozzarella sticks",
+      "a Tinder date who showed up already wasted",
+      "a \"bottle rat\" who appeared when the Champagne did",
+      "a friend who takes 45 minutes to say goodbye",
+      "an ex who shows up at every bar you go to",
+      "a hookup whose roommate is always home",
+      "a brunch mimosa that's 90% champagne and 10% eye contact",
+      "a hangover so bad it developed its own personality",
+      "the friend who always says \"one more drink\" six times",
+      "a late-night diner waitress who's seen worse and still judges",
+      "someone who peaked at beer pong and never recovered",
+      "a party host whose \"apartment\" is a futon and a flag",
+      "an Uber driver with a 5-star rating and zero small talk",
+      "a coat-check ticket that holds more memories than your phone",
+      "a dance floor predator with two left feet and no shame"
+    ]
+  }
+];
+
+const BUNDLES = [
+  { id: 'all-kids', name: 'All Kid Packs', packIds: ['cafeteria-chaos','toilet-terror','holiday-horrors'], price: '$1.99', fullPrice: '$2.97' },
+  { id: 'all-adult', name: 'All Adult Packs', packIds: ['office-nightmare','dating-disasters','adulting-is-hard','after-dark'], price: '$4.99', fullPrice: '$7.96' },
+  { id: 'everything', name: 'Everything Bundle', packIds: ['cafeteria-chaos','toilet-terror','holiday-horrors','office-nightmare','dating-disasters','adulting-is-hard','after-dark'], price: '$5.99', fullPrice: '$10.93' }
+];
+
+// ═══════════════════════════════════════════
+//  PACK STATE MANAGEMENT
+// ═══════════════════════════════════════════
+
+function getOwnedPacks() {
+  try { return JSON.parse(localStorage.getItem('ownedPacks') || '["original"]'); }
+  catch { return ['original']; }
+}
+
+function getActivePacks() {
+  try { return JSON.parse(localStorage.getItem('activePacks') || '["original"]'); }
+  catch { return ['original']; }
+}
+
+function saveOwnedPacks(ids) { localStorage.setItem('ownedPacks', JSON.stringify(ids)); }
+function saveActivePacks(ids) { localStorage.setItem('activePacks', JSON.stringify(ids)); }
+
+function purchasePack(packId) {
+  const owned = getOwnedPacks();
+  if (!owned.includes(packId)) {
+    owned.push(packId);
+    saveOwnedPacks(owned);
+  }
+  const active = getActivePacks();
+  if (!active.includes(packId)) {
+    active.push(packId);
+    saveActivePacks(active);
+  }
+  rebuildActiveData();
+  renderStore();
+  updatePackIndicator();
+}
+
+function togglePack(packId) {
+  if (packId === 'original') return;
+  const active = getActivePacks();
+  const idx = active.indexOf(packId);
+  if (idx >= 0) active.splice(idx, 1);
+  else active.push(packId);
+  saveActivePacks(active);
+  rebuildActiveData();
+  renderStore();
+  updatePackIndicator();
+}
+
+function purchaseBundle(bundleId) {
+  const bundle = BUNDLES.find(b => b.id === bundleId);
+  if (!bundle) return;
+  bundle.packIds.forEach(pid => {
+    const owned = getOwnedPacks();
+    if (!owned.includes(pid)) {
+      owned.push(pid);
+      saveOwnedPacks(owned);
+    }
+    const active = getActivePacks();
+    if (!active.includes(pid)) {
+      active.push(pid);
+      saveActivePacks(active);
+    }
+  });
+  rebuildActiveData();
+  renderStore();
+  updatePackIndicator();
+}
+
+// ═══════════════════════════════════════════
+//  ACTIVE DATA (merged from active packs)
+// ═══════════════════════════════════════════
+
+let DATA = { persons: [], actions: [], adjNouns: [], connectors: [], creatures: [] };
+
+function rebuildActiveData() {
+  const active = getActivePacks();
+  DATA = { persons: [], actions: [], adjNouns: [], connectors: [], creatures: [] };
+  PACKS.forEach(pack => {
+    if (active.includes(pack.id)) {
+      CATS.forEach(cat => {
+        if (pack[cat] && pack[cat].length) {
+          DATA[cat] = DATA[cat].concat(pack[cat]);
+        }
+      });
+    }
+  });
+  updateTagline();
+}
+
+function updateTagline() {
+  const counts = CATS.map(c => DATA[c].length);
+  const total = counts.reduce((a, b) => a * b, 1);
+  let label;
+  if (total >= 1e9) label = (total / 1e9).toFixed(1).replace(/\.0$/, '') + ' billion';
+  else if (total >= 1e6) label = (total / 1e6).toFixed(0) + ' million';
+  else label = total.toLocaleString();
+  document.getElementById('tagline').textContent = 'Over ' + label + ' hilarious zingers & stingers';
+}
+
+function updatePackIndicator() {
+  const active = getActivePacks();
+  const el = document.getElementById('packIndicator');
+  const dots = active.map(id => {
+    const pack = PACKS.find(p => p.id === id);
+    if (!pack) return '';
+    const colors = { free: '#C8D23C', kids: '#5BC0EB', adult: '#E85D8A' };
+    return '<span class="pack-dot" style="background:' + (colors[pack.tier] || '#999') + '" title="' + pack.name + '"></span>';
+  }).join('');
+  el.innerHTML = dots + ' <span>' + active.length + ' pack' + (active.length !== 1 ? 's' : '') + ' active</span>';
+}
+
+// ═══════════════════════════════════════════
+//  STORE UI
+// ═══════════════════════════════════════════
+
+function openStore() {
+  renderStore();
+  document.getElementById('storeOverlay').classList.add('open');
+  document.getElementById('storePanel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeStore() {
+  document.getElementById('storeOverlay').classList.remove('open');
+  document.getElementById('storePanel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderStore() {
+  const owned = getOwnedPacks();
+  const active = getActivePacks();
+  const body = document.getElementById('storeBody');
+
+  const allOwned = BUNDLES.every(b => b.packIds.every(pid => owned.includes(pid)));
+
+  let html = '';
+
+  // Bundles
+  if (!allOwned) {
+    BUNDLES.forEach(bundle => {
+      const bundleOwned = bundle.packIds.every(pid => owned.includes(pid));
+      if (bundleOwned) return;
+      html += '<div class="bundle-banner">';
+      html += '<div class="bundle-title">' + bundle.name + '</div>';
+      html += '<div class="bundle-price"><s>' + bundle.fullPrice + '</s> &rarr; ' + bundle.price + '</div>';
+      html += '<button class="bundle-btn" onclick="purchaseBundle(\'' + bundle.id + '\')">';
+      html += 'Unlock All</button></div>';
+    });
+  }
+
+  // Free pack
+  html += '<div class="store-section-title">Included Free</div>';
+  PACKS.filter(p => p.tier === 'free').forEach(pack => {
+    html += renderPackCard(pack, owned, active);
+  });
+
+  // Kid packs
+  const kidPacks = PACKS.filter(p => p.tier === 'kids');
+  if (kidPacks.length) {
+    html += '<div class="store-section-title">Kid Packs <span class="pack-badge badge-kids">Ages 6+</span></div>';
+    kidPacks.forEach(pack => { html += renderPackCard(pack, owned, active); });
+  }
+
+  // Adult packs
+  const adultPacks = PACKS.filter(p => p.tier === 'adult');
+  if (adultPacks.length) {
+    html += '<div class="store-section-title">Adult Packs <span class="pack-badge badge-adult">18+</span></div>';
+    adultPacks.forEach(pack => { html += renderPackCard(pack, owned, active); });
+  }
+
+  body.innerHTML = html;
+}
+
+function renderPackCard(pack, owned, active) {
+  const isOwned = owned.includes(pack.id);
+  const isActive = active.includes(pack.id);
+  const isFree = pack.tier === 'free';
+  const count = CATS.reduce((sum, c) => sum + (pack[c] ? pack[c].length : 0), 0);
+  const isEmpty = count === 0;
+
+  let btnHtml;
+  if (isFree) {
+    btnHtml = '<span class="pack-btn pack-btn-free">Included</span>';
+  } else if (!isOwned) {
+    if (isEmpty) {
+      btnHtml = '<span class="pack-btn pack-btn-free">Coming Soon</span>';
+    } else {
+      btnHtml = '<button class="pack-btn pack-btn-buy" onclick="event.stopPropagation();purchasePack(\'' + pack.id + '\')">' + pack.price + '</button>';
+    }
+  } else if (isActive) {
+    btnHtml = '<button class="pack-btn pack-btn-active" onclick="event.stopPropagation();togglePack(\'' + pack.id + '\')">Active</button>';
+  } else {
+    btnHtml = '<button class="pack-btn pack-btn-inactive" onclick="event.stopPropagation();togglePack(\'' + pack.id + '\')">Off</button>';
+  }
+
+  let badge = '';
+  if (pack.tier === 'kids') badge = '<span class="pack-badge badge-kids">Kids</span>';
+  else if (pack.tier === 'adult') badge = '<span class="pack-badge badge-adult">18+</span>';
+
+  return '<div class="pack-card">' +
+    '<div class="pack-emoji">' + pack.emoji + '</div>' +
+    '<div class="pack-info">' +
+      '<div class="pack-name">' + pack.name + badge + '</div>' +
+      '<div class="pack-desc">' + pack.description + '</div>' +
+      (count > 0 ? '<div class="pack-count">' + count + ' entries</div>' : '') +
+    '</div>' +
+    '<div class="pack-action">' + btnHtml + '</div>' +
+  '</div>';
+}
+
+// ═══════════════════════════════════════════
+//  GAME ENGINE
+// ═══════════════════════════════════════════
 
 const book = document.getElementById('book');
 const readout = document.getElementById('readout');
@@ -831,6 +2395,7 @@ const strips = [];
 const state = CATS.map(() => ({ flipped: false, value: null, lastIndex: -1, colorIndex: -1 }));
 
 function pick(arr, lastIdx) {
+  if (!arr.length) return { value: '???', index: -1 };
   let i;
   do { i = Math.floor(Math.random() * arr.length); } while (i === lastIdx && arr.length > 1);
   return { value: arr[i], index: i };
@@ -851,17 +2416,17 @@ function buildStrips() {
     const el = document.createElement('div');
     const c = pickColor(-1);
     state[i].colorIndex = c.index;
-    el.className = `strip unflipped ${TYPES[i]}`;
-    el.innerHTML = `
-      <div class="strip-card" style="background:${c.color}">
-        <span class="strip-text"></span>
-        <div class="strip-placeholder">
-          <span class="strip-placeholder-label">
-            <span class="tap-icon"></span>${PLACEHOLDER_LABELS[i]}
-          </span>
-        </div>
-      </div>`;
-    el.addEventListener('click', () => flip(i));
+    el.className = 'strip unflipped ' + TYPES[i];
+    el.innerHTML =
+      '<div class="strip-card" style="background:' + c.color + '">' +
+        '<span class="strip-text"></span>' +
+        '<div class="strip-placeholder">' +
+          '<span class="strip-placeholder-label">' +
+            '<span class="tap-icon"></span>' + PLACEHOLDER_LABELS[i] +
+          '</span>' +
+        '</div>' +
+      '</div>';
+    el.addEventListener('click', function() { flip(i); });
     book.appendChild(el);
     strips.push(el);
   });
@@ -874,25 +2439,25 @@ function flip(i, skipHaptic) {
   if (!skipHaptic) haptic();
   el.classList.add('flipping');
 
-  setTimeout(() => {
-    const { value, index } = pick(DATA[CATS[i]], state[i].lastIndex);
-    const { color, index: ci } = pickColor(state[i].colorIndex);
+  setTimeout(function() {
+    var r = pick(DATA[CATS[i]], state[i].lastIndex);
+    var c = pickColor(state[i].colorIndex);
     state[i].flipped = true;
-    state[i].value = value;
-    state[i].lastIndex = index;
-    state[i].colorIndex = ci;
+    state[i].value = r.value;
+    state[i].lastIndex = r.index;
+    state[i].colorIndex = c.index;
     el.classList.remove('unflipped');
-    card.style.background = color;
-    text.textContent = value;
+    card.style.background = c.color;
+    text.textContent = r.value;
     updateReadout();
   }, 140);
 
-  setTimeout(() => el.classList.remove('flipping'), 320);
+  setTimeout(function() { el.classList.remove('flipping'); }, 320);
 }
 
 function updateReadout() {
-  const allFlipped = state.every(s => s.flipped);
-  const anyFlipped = state.some(s => s.flipped);
+  const allFlipped = state.every(function(s) { return s.flipped; });
+  const anyFlipped = state.some(function(s) { return s.flipped; });
 
   if (!anyFlipped) {
     readoutEmpty.style.display = '';
@@ -902,44 +2467,44 @@ function updateReadout() {
     return;
   }
 
-  const parts = state.map((s, i) => s.flipped ? s.value : '___');
+  const parts = state.map(function(s) { return s.flipped ? s.value : '___'; });
   const sentence = parts.join(' ');
 
   readoutEmpty.style.display = 'none';
   readoutText.style.display = '';
-  readoutText.textContent = allFlipped ? sentence : sentence;
+  readoutText.textContent = sentence;
   copyBtn.style.display = allFlipped ? '' : 'none';
   readout.classList.toggle('complete', allFlipped);
 }
 
 function shuffleAll() {
   haptic();
-  strips.forEach((_, i) => {
-    setTimeout(() => flip(i, true), i * 80);
+  strips.forEach(function(_, i) {
+    setTimeout(function() { flip(i, true); }, i * 80);
   });
 }
 
 function resetAll() {
   haptic();
-  strips.forEach((el, i) => {
+  strips.forEach(function(el, i) {
     el.classList.add('flipping');
-    setTimeout(() => {
-      const { color, index: ci } = pickColor(state[i].colorIndex);
-      state[i] = { flipped: false, value: null, lastIndex: -1, colorIndex: ci };
+    setTimeout(function() {
+      var c = pickColor(state[i].colorIndex);
+      state[i] = { flipped: false, value: null, lastIndex: -1, colorIndex: c.index };
       el.classList.add('unflipped');
       el.querySelector('.strip-text').textContent = '';
-      el.querySelector('.strip-card').style.background = color;
+      el.querySelector('.strip-card').style.background = c.color;
       updateReadout();
     }, 140);
-    setTimeout(() => el.classList.remove('flipping'), 320);
+    setTimeout(function() { el.classList.remove('flipping'); }, 320);
   });
 }
 
 function copyInsult() {
-  const sentence = state.map(s => s.value).join(' ');
-  navigator.clipboard.writeText(sentence).then(() => {
+  var sentence = state.map(function(s) { return s.value; }).join(' ');
+  navigator.clipboard.writeText(sentence).then(function() {
     copyToast.classList.add('show');
-    setTimeout(() => copyToast.classList.remove('show'), 1800);
+    setTimeout(function() { copyToast.classList.remove('show'); }, 1800);
   });
 }
 
@@ -947,9 +2512,17 @@ document.getElementById('shuffleBtn').addEventListener('click', shuffleAll);
 document.getElementById('resetBtn').addEventListener('click', resetAll);
 copyBtn.addEventListener('click', copyInsult);
 
+// Close store on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeStore();
+});
+
+// Init
+rebuildActiveData();
+updatePackIndicator();
 buildStrips();
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/insult/sw.js').catch(() => {});
+  navigator.serviceWorker.register('/insult/sw.js').catch(function() {});
 }
 </script>
