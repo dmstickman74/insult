@@ -2207,11 +2207,14 @@ function purchasePack(packId) {
 }
 
 function togglePack(packId) {
-  if (packId === 'original') return;
   const active = getActivePacks();
   const idx = active.indexOf(packId);
-  if (idx >= 0) active.splice(idx, 1);
-  else active.push(packId);
+  if (idx >= 0) {
+    if (active.length <= 1) return;
+    active.splice(idx, 1);
+  } else {
+    active.push(packId);
+  }
   saveActivePacks(active);
   rebuildActiveData();
   renderStore();
@@ -2351,8 +2354,12 @@ function renderPackCard(pack, owned, active) {
   const isEmpty = count === 0;
 
   let btnHtml;
-  if (isFree) {
+  if (isFree && owned.length <= 1) {
     btnHtml = '<span class="pack-btn pack-btn-free">Included</span>';
+  } else if (isFree && isActive) {
+    btnHtml = '<button class="pack-btn pack-btn-active" onclick="event.stopPropagation();togglePack(\'' + pack.id + '\')">Active</button>';
+  } else if (isFree) {
+    btnHtml = '<button class="pack-btn pack-btn-inactive" onclick="event.stopPropagation();togglePack(\'' + pack.id + '\')">Off</button>';
   } else if (!isOwned) {
     if (isEmpty) {
       btnHtml = '<span class="pack-btn pack-btn-free">Coming Soon</span>';
