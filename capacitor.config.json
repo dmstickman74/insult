@@ -1,6 +1,6 @@
 {
-  "appId": "com.poppys.insultgenerator",
-  "appName": "Poppy's Insult Generator",
+  "appId": "com.roastroulette.app",
+  "appName": "Roast Roulette",
   "webDir": "www",
   "server": {
     "androidScheme": "https"

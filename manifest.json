@@ -1,7 +1,7 @@
 {
-  "name": "Poppy's Ultimate Insult Generator",
-  "short_name": "Insult Gen",
-  "description": "Over 16 billion hilarious zingers & stingers",
+  "name": "Roast Roulette",
+  "short_name": "Roast Roulette",
+  "description": "Spin up hilarious roasts with billions of combinations",
   "start_url": "/insult/",
   "display": "standalone",
   "orientation": "portrait",
