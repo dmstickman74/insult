@@ -4,56 +4,56 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1c1108">
+<meta name="theme-color" content="#1C1C1C">
 <link rel="manifest" href="manifest.json">
 <style>
   :root {
-    --bg: #f7f2e8;
-    --bg-deep: #ede6d6;
-    --ink: #1c1108;
-    --ink-soft: #3d2e1a;
-    --muted: #9a8b76;
-    --gutter: #bfb49e;
-    --glow: rgba(255,200,60,0.12);
-    --card-shadow: 0 2px 6px rgba(28,17,8,0.18), 0 0 0 1px rgba(28,17,8,0.06);
-    --card-shadow-hover: 0 4px 16px rgba(28,17,8,0.22), 0 0 0 1px rgba(28,17,8,0.1);
-    --accent: #E84855;
-    --accent-green: #C8D23C;
+    --bg: #F5F5F5;
+    --bg-deep: #e8e8e8;
+    --ink: #1C1C1C;
+    --ink-soft: #333333;
+    --muted: #888888;
+    --gutter: #cccccc;
+    --glow: rgba(212,175,55,0.12);
+    --card-shadow: 0 2px 6px rgba(28,28,28,0.18), 0 0 0 1px rgba(28,28,28,0.06);
+    --card-shadow-hover: 0 4px 16px rgba(28,28,28,0.22), 0 0 0 1px rgba(28,28,28,0.1);
+    --accent: #8B0000;
+    --accent-gold: #D4AF37;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1c1108;
-      --bg-deep: #140c04;
-      --ink: #f0e8d8;
-      --ink-soft: #c8b89a;
-      --muted: #7a6b56;
-      --gutter: #3a2e20;
-      --glow: rgba(255,200,60,0.06);
+      --bg: #1C1C1C;
+      --bg-deep: #111111;
+      --ink: #F5F5F5;
+      --ink-soft: #cccccc;
+      --muted: #777777;
+      --gutter: #3a3a3a;
+      --glow: rgba(212,175,55,0.08);
       --card-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
       --card-shadow-hover: 0 6px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
     }
   }
   :root[data-theme="dark"] {
-    --bg: #1c1108;
-    --bg-deep: #140c04;
-    --ink: #f0e8d8;
-    --ink-soft: #c8b89a;
-    --muted: #7a6b56;
-    --gutter: #3a2e20;
-    --glow: rgba(255,200,60,0.06);
+    --bg: #1C1C1C;
+    --bg-deep: #111111;
+    --ink: #F5F5F5;
+    --ink-soft: #cccccc;
+    --muted: #777777;
+    --gutter: #3a3a3a;
+    --glow: rgba(212,175,55,0.08);
     --card-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
     --card-shadow-hover: 0 6px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
   }
   :root[data-theme="light"] {
-    --bg: #f7f2e8;
-    --bg-deep: #ede6d6;
-    --ink: #1c1108;
-    --ink-soft: #3d2e1a;
-    --muted: #9a8b76;
-    --gutter: #bfb49e;
-    --glow: rgba(255,200,60,0.12);
-    --card-shadow: 0 2px 6px rgba(28,17,8,0.18), 0 0 0 1px rgba(28,17,8,0.06);
-    --card-shadow-hover: 0 4px 16px rgba(28,17,8,0.22), 0 0 0 1px rgba(28,17,8,0.1);
+    --bg: #F5F5F5;
+    --bg-deep: #e8e8e8;
+    --ink: #1C1C1C;
+    --ink-soft: #333333;
+    --muted: #888888;
+    --gutter: #cccccc;
+    --glow: rgba(212,175,55,0.12);
+    --card-shadow: 0 2px 6px rgba(28,28,28,0.18), 0 0 0 1px rgba(28,28,28,0.06);
+    --card-shadow-hover: 0 4px 16px rgba(28,28,28,0.22), 0 0 0 1px rgba(28,28,28,0.1);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -78,8 +78,8 @@
     position: fixed;
     inset: 0;
     background:
-      repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(128,100,60,0.02) 3px, rgba(128,100,60,0.02) 4px),
-      repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(128,100,60,0.015) 5px, rgba(128,100,60,0.015) 6px);
+      repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(28,28,28,0.02) 3px, rgba(28,28,28,0.02) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 5px, rgba(28,28,28,0.015) 5px, rgba(28,28,28,0.015) 6px);
     pointer-events: none;
     z-index: 0;
   }
@@ -96,19 +96,10 @@
   .logo {
     display: block;
     width: 100%;
-    max-width: 400px;
+    max-width: 320px;
     height: auto;
     margin: 0 auto 6px;
   }
-  .logo-dark { display: none; }
-  @media (prefers-color-scheme: dark) {
-    .logo-light { display: none; }
-    .logo-dark { display: block; }
-  }
-  :root[data-theme="dark"] .logo-light { display: none; }
-  :root[data-theme="dark"] .logo-dark { display: block; }
-  :root[data-theme="light"] .logo-light { display: block; }
-  :root[data-theme="light"] .logo-dark { display: none; }
   .tagline {
     font-size: clamp(11px, 2.5vw, 13px);
     color: var(--muted);
@@ -201,7 +192,7 @@
   .strip-text {
     position: relative;
     z-index: 2;
-    color: #1c1108;
+    color: #1C1C1C;
     line-height: 1.15;
     transition: opacity 0.12s;
   }
@@ -238,7 +229,7 @@
     text-transform: uppercase;
     letter-spacing: 0.15em;
     font-weight: 700;
-    color: #1c1108;
+    color: #1C1C1C;
     opacity: 0.3;
     display: flex;
     align-items: center;
@@ -583,14 +574,14 @@
   }
   .pack-btn-buy:hover { opacity: 0.85; }
   .pack-btn-active {
-    background: var(--accent-green);
-    color: #1c1108;
+    background: var(--accent-gold);
+    color: #1C1C1C;
   }
   .pack-btn-inactive {
     background: var(--gutter);
     color: var(--ink-soft);
   }
-  .pack-btn-inactive:hover { background: var(--accent-green); color: #1c1108; }
+  .pack-btn-inactive:hover { background: var(--accent-gold); color: #1C1C1C; }
   .pack-btn-free {
     background: transparent;
     color: var(--muted);
@@ -609,13 +600,13 @@
     margin-left: 6px;
     vertical-align: middle;
   }
-  .badge-kids { background: #5BC0EB; color: #1c1108; }
+  .badge-kids { background: #5BC0EB; color: #1C1C1C; }
   .badge-adult { background: #E85D8A; color: #fff; }
-  .badge-new { background: var(--accent-green); color: #1c1108; }
+  .badge-new { background: var(--accent-gold); color: #1C1C1C; }
 
   /* ── Bundle banner ── */
   .bundle-banner {
-    background: linear-gradient(135deg, var(--accent) 0%, #E85D8A 100%);
+    background: linear-gradient(135deg, #8B0000 0%, #FF4500 100%);
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 16px;
@@ -648,42 +639,11 @@
     letter-spacing: 0.08em;
     transition: all 0.15s;
   }
-  .bundle-btn:hover { background: #fff; color: var(--accent); }
+  .bundle-btn:hover { background: #fff; color: #8B0000; }
 </style>
 
 <div class="header">
-  <svg class="logo logo-light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" role="img" aria-label="Roast Roulette">
-    <defs><clipPath id="iconClipL"><rect width="90" height="90" rx="14"/></clipPath></defs>
-    <g transform="translate(0,5)" clip-path="url(#iconClipL)">
-      <rect width="90" height="90" rx="14" fill="#E84855"/>
-      <g transform="translate(45,45)"><path d="M0,-45 A45,45 0 0,1 39,22.5 L0,0Z" fill="#D63E4A"/><path d="M-39,22.5 A45,45 0 0,1 0,-45 L0,0Z" fill="#C83545"/></g>
-      <circle cx="45" cy="45" r="28" fill="#1c1108"/>
-      <g transform="translate(45,48)">
-        <path d="M0,-24 C-3,-19 -13,-10 -12,3 C-11,10 -7,15 0,19 C7,15 11,10 12,3 C13,-10 3,-19 0,-24Z" fill="#F5A623"/>
-        <path d="M0,-17 C-2,-13 -8,-6 -7,2 C-7,7 -4,10 0,13 C4,10 7,7 7,2 C8,-6 2,-13 0,-17Z" fill="#E8772E"/>
-        <path d="M0,-10 C-1,-7 -4,-2 -4,2 C-4,5 -2,8 0,9 C2,8 4,5 4,2 C4,-2 1,-7 0,-10Z" fill="#E84855"/>
-        <path d="M0,-5 C-1,-3 -2,0 -2,2 C-2,3 -1,5 0,5.5 C1,5 2,3 2,2 C2,0 1,-3 0,-5Z" fill="#FFD93D"/>
-      </g>
-    </g>
-    <text x="110" y="45" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-weight="900" font-size="48" letter-spacing="1" fill="#E84855">ROAST</text>
-    <text x="110" y="82" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-weight="700" font-size="32" letter-spacing="5" fill="#201e1d">ROULETTE</text>
-  </svg>
-  <svg class="logo logo-dark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" role="img" aria-label="Roast Roulette">
-    <defs><clipPath id="iconClipD"><rect width="90" height="90" rx="14"/></clipPath></defs>
-    <g transform="translate(0,5)" clip-path="url(#iconClipD)">
-      <rect width="90" height="90" rx="14" fill="#E84855"/>
-      <g transform="translate(45,45)"><path d="M0,-45 A45,45 0 0,1 39,22.5 L0,0Z" fill="#D63E4A"/><path d="M-39,22.5 A45,45 0 0,1 0,-45 L0,0Z" fill="#C83545"/></g>
-      <circle cx="45" cy="45" r="28" fill="#1c1108"/>
-      <g transform="translate(45,48)">
-        <path d="M0,-24 C-3,-19 -13,-10 -12,3 C-11,10 -7,15 0,19 C7,15 11,10 12,3 C13,-10 3,-19 0,-24Z" fill="#F5A623"/>
-        <path d="M0,-17 C-2,-13 -8,-6 -7,2 C-7,7 -4,10 0,13 C4,10 7,7 7,2 C8,-6 2,-13 0,-17Z" fill="#E8772E"/>
-        <path d="M0,-10 C-1,-7 -4,-2 -4,2 C-4,5 -2,8 0,9 C2,8 4,5 4,2 C4,-2 1,-7 0,-10Z" fill="#E84855"/>
-        <path d="M0,-5 C-1,-3 -2,0 -2,2 C-2,3 -1,5 0,5.5 C1,5 2,3 2,2 C2,0 1,-3 0,-5Z" fill="#FFD93D"/>
-      </g>
-    </g>
-    <text x="110" y="45" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-weight="900" font-size="48" letter-spacing="1" fill="#E84855">ROAST</text>
-    <text x="110" y="82" font-family="'Trebuchet MS','Segoe UI',system-ui,sans-serif" font-weight="700" font-size="32" letter-spacing="5" fill="#f3f2f2">ROULETTE</text>
-  </svg>
+  <img class="logo" src="icons/logo-header.png" alt="Roast Roulette">
   <div class="tagline" id="tagline">Over 16 billion hilarious zingers & stingers</div>
   <div class="active-packs-indicator" id="packIndicator" onclick="openStore()"></div>
 </div>
@@ -732,7 +692,7 @@
 </div>
 
 <script>
-const COLORS = ['#E8772E','#C8D23C','#E85D8A','#4ECDC4','#AB7CE6','#F5A623','#5BC0EB','#E84855'];
+const COLORS = ['#8B0000','#FF4500','#D4AF37','#B22222','#CC7000','#A08030','#9B1B1B','#E05A00'];
 const PLACEHOLDER_LABELS = ['Tap for a person','Tap for an action','Tap for a thing','Tap for a twist','Tap for a creature'];
 const CATS = ['persons','actions','adjNouns','connectors','creatures'];
 const TYPES = ['display-type','action-type','display-type','action-type','display-type'];
@@ -2295,7 +2255,7 @@ function updatePackIndicator() {
   const dots = active.map(id => {
     const pack = PACKS.find(p => p.id === id);
     if (!pack) return '';
-    const colors = { free: '#C8D23C', kids: '#5BC0EB', adult: '#E85D8A' };
+    const colors = { free: '#D4AF37', kids: '#FF4500', adult: '#8B0000' };
     return '<span class="pack-dot" style="background:' + (colors[pack.tier] || '#999') + '" title="' + pack.name + '"></span>';
   }).join('');
   el.innerHTML = dots + ' <span>' + active.length + ' pack' + (active.length !== 1 ? 's' : '') + ' active</span>';
